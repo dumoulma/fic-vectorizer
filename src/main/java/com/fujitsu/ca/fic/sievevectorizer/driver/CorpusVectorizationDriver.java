@@ -1,9 +1,11 @@
 package com.fujitsu.ca.fic.sievevectorizer.driver;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.mapred.jobcontrol.Job;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
@@ -22,7 +24,7 @@ public class CorpusVectorizationDriver extends Configured implements Tool {
     }
 
     @Override
-    public int run(String[] args) throws Exception {
+    public int run(String[] args) throws IOException {
         Configuration conf = getConf();
         List<String> tokenIndexList = BnsVocabularyLoader.loadFromText(conf, "data/out/bns-vocab");
         System.out.println(String.format("VocabSize=%d", tokenIndexList.size()));
@@ -30,6 +32,6 @@ public class CorpusVectorizationDriver extends Configured implements Tool {
         CorpusVectorizer corpus = new BnsCorpusVectorizer();
         corpus.convertToSequenceFile(conf, tokenIndexList, "data/out/bns-corpus", "data/out/corpus-sequences");
 
-        return 0;
+        return Job.SUCCESS;
     }
 }

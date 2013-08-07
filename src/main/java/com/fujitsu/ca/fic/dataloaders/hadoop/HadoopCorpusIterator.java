@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
@@ -17,49 +18,64 @@ import org.slf4j.LoggerFactory;
 import com.fujitsu.ca.fic.dataloaders.CorpusIterator;
 import com.fujitsu.ca.fic.dataloaders.LineParser;
 import com.fujitsu.ca.fic.exceptions.IncorrectLineFormatException;
+import com.google.common.collect.Lists;
 
 public class HadoopCorpusIterator extends CorpusIterator<Vector> {
     private static Logger LOG = LoggerFactory.getLogger(HadoopCorpusIterator.class);
 
     LineParser lineParser;
-    private static FileSystem fs;
-    private static FileStatus[] fileStatus;
-    private static int currentFileStatusIndex = 0;
-    private static BufferedReader reader = null;
-    private static String nextLine = null;
+    private final FileSystem fs;
+    private final List<Path> filesToProcess;
+    private int currentFileStatusIndex = 0;
+    private BufferedReader reader = null;
+    private String nextLine = null;
 
     public HadoopCorpusIterator(Configuration conf, String inputDirName, LineParser lineParser) throws IOException {
         this.lineParser = lineParser;
-        FileSystem fs = FileSystem.get(conf);
-        fileStatus = fs.listStatus(new Path(inputDirName), new PathFilter() {
+        fs = FileSystem.get(conf);
+        filesToProcess = getListOfMapReduceOutputFiles(fs, inputDirName);
+    }
+
+    private static List<Path> getListOfMapReduceOutputFiles(FileSystem fs, String inputDirName) throws IOException {
+        FileStatus[] fileStatus = fs.listStatus(new Path(inputDirName), new PathFilter() {
             @Override
             public boolean accept(Path path) {
                 return path.getName().matches("part(.*)");
             }
         });
+        List<Path> paths = Lists.newArrayList();
+        for (FileStatus file : fileStatus) {
+            paths.add(file.getPath());
+        }
+        return paths;
     }
 
     @Override
     public boolean hasNext() {
-        if (reader == null)
-            return false;
         try {
+            if (reader == null && currentFileStatusIndex == filesToProcess.size()) {
+                return false;
+            } else if (reader == null) {
+                setReaderToNextFile();
+            }
             nextLine = reader.readLine();
-            if (!currentFileHasNextLine(nextLine) && directoryHasMoreFiles()) {
-                setReaderToNextFile(fs);
+            if (isEndOfFile(nextLine) & directoryHasMoreFiles()) {
+                LOG.debug("File finished, changing to next file.");
+                setReaderToNextFile();
+                return hasNext();
 
-                hasNext();
-            } else if (currentFileHasNextLine(nextLine)) {
+            } else if (!isEndOfFile(nextLine)) {
                 return true;
             }
             reader.close();
-
+            reader = null;
         } catch (IOException e) {
+            LOG.error(e.toString());
             if (reader != null) {
                 try {
                     reader.close();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
+                } catch (IOException e2) {
+                    LOG.error(e.toString());
                 }
             }
         }
@@ -67,18 +83,23 @@ public class HadoopCorpusIterator extends CorpusIterator<Vector> {
     }
 
     private boolean directoryHasMoreFiles() {
-        return currentFileStatusIndex < fileStatus.length;
+        return currentFileStatusIndex < filesToProcess.size();
     }
 
-    private boolean currentFileHasNextLine(String nextLine2) {
-        return (nextLine != null && nextLine.length() > 0);
+    private boolean isEndOfFile(String nextLine) {
+        return (nextLine == null || nextLine.isEmpty());
     }
 
-    private void setReaderToNextFile(FileSystem fs) throws IOException {
-        FileStatus file = fileStatus[currentFileStatusIndex++];
-        Path nextFilePath = file.getPath();
-        LOG.info("Processing next file: " + nextFilePath.getName());
+    private void setReaderToNextFile() throws IOException {
+        if (currentFileStatusIndex == filesToProcess.size()) {
+            LOG.warn("setReaderToNextFile: No more files to process!");
+            reader = null;
+            return;
+        }
+        Path nextFilePath = filesToProcess.get(currentFileStatusIndex++);
         reader = new BufferedReader(new InputStreamReader(fs.open(nextFilePath)));
+
+        LOG.info("Processing next file: " + nextFilePath.toString());
     }
 
     @Override
@@ -96,5 +117,4 @@ public class HadoopCorpusIterator extends CorpusIterator<Vector> {
     public Iterator<Vector> iterator() {
         return this;
     }
-
 }

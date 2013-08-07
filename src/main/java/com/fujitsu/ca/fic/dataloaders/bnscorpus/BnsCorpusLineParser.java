@@ -18,7 +18,11 @@ public class BnsCorpusLineParser implements LineParser {
     private static final int BNS_SCORE_INDEX = 4;
     private static final int TOKEN_INDEX = 3;
 
-    private List<String> tokenIndexList;
+    private final List<String> tokenIndexList;
+
+    BnsCorpusLineParser(List<String> tokenIndexList) {
+        this.tokenIndexList = tokenIndexList;
+    }
 
     static int i = 0;
 
@@ -41,6 +45,7 @@ public class BnsCorpusLineParser implements LineParser {
                 line = line.substring(end + 2);
             } catch (IncorrectLineFormatException e) {
                 LOG.warn("parseFields: could not parse feature: " + nextFeatureFields + "\n");
+                throw e;
             }
             i++;
         }

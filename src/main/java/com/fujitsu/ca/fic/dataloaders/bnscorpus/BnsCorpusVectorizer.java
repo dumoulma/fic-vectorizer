@@ -31,10 +31,10 @@ public class BnsCorpusVectorizer implements CorpusVectorizer {
 
             writer = SequenceFile.createWriter(FileSystem.get(conf), conf, outputPath, LongWritable.class, VectorWritable.class);
 
-            CorpusIterator<Vector> it = new HadoopCorpusIterator(conf, inputDirName, new BnsCorpusLineParser());
+            CorpusIterator<Vector> it = new HadoopCorpusIterator(conf, inputDirName, new BnsCorpusLineParser(tokenIndexList));
             long index = 0L;
-            for (Vector nextDocVector : it) {
-                writer.append(new LongWritable(index++), new VectorWritable(nextDocVector));
+            for (Vector vectorizedDocument : it) {
+                writer.append(new LongWritable(index++), new VectorWritable(vectorizedDocument));
             }
             LOG.info("Sequence file written to HDFS successfully. Docs written: " + index);
         } finally {
