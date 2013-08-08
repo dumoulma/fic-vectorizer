@@ -3,14 +3,14 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.fujitsu.ca.fic</groupId>
-	<version>0.9</version>
+	<version>0.91</version>
 	<name>Sieve Corpus Vectorizer</name>
 
 	<artifactId>fic-vectorizer</artifactId>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<mahout.version>0.7</mahout.version>
+		<mahout.version>0.8</mahout.version>
 		<hadoop.version>1.1.2</hadoop.version>
 		<pig.version>0.11.1</pig.version>
 	</properties>
@@ -109,8 +109,8 @@
 				<version>2.4</version>
 				<configuration>
 					<encoding>${project.build.sourceEncoding}</encoding>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>1.7</source>
+					<target>1.7</target>
 					<optimize>true</optimize>
 				</configuration>
 			</plugin>
@@ -123,9 +123,9 @@
 						<descriptor>src/main/assembly/hadoop-job.xml</descriptor>
 					</descriptors>
 					<archive>
-<!-- 						<manifest> -->
-<!-- 							<mainClass>com.fujitsu.ca.fic.classifiers.drivers.basic.ConfidentLearningOnKddDriver</mainClass> -->
-<!-- 						</manifest> -->
+						<manifest>
+							<mainClass>com.fujitsu.ca.fic.sievevectorizer.driver.CorpusVectorizationDriver</mainClass>
+						</manifest>
 					</archive>
 				</configuration>
 				<executions>

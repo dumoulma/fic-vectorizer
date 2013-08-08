@@ -1,4 +1,4 @@
-package com.fujitsu.ca.fic.dataloaders.bnscorpus;
+package com.fujitsu.ca.fic.dataloaders.bns.corpus;
 
 import java.io.IOException;
 import java.util.List;
@@ -14,9 +14,8 @@ import org.apache.mahout.math.VectorWritable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fujitsu.ca.fic.dataloaders.CorpusIterator;
 import com.fujitsu.ca.fic.dataloaders.CorpusVectorizer;
-import com.fujitsu.ca.fic.dataloaders.hadoop.HadoopCorpusIterator;
+import com.fujitsu.ca.fic.dataloaders.hdfs.HdfsCorpusLoader;
 
 public class BnsCorpusVectorizer implements CorpusVectorizer {
     private static Logger LOG = LoggerFactory.getLogger(BnsCorpusVectorizer.class);
@@ -31,9 +30,11 @@ public class BnsCorpusVectorizer implements CorpusVectorizer {
 
             writer = SequenceFile.createWriter(FileSystem.get(conf), conf, outputPath, LongWritable.class, VectorWritable.class);
 
-            CorpusIterator<Vector> it = new HadoopCorpusIterator(conf, inputDirName, new BnsCorpusLineParser(tokenIndexList));
+            HdfsCorpusLoader<Vector> hadoopCorpus = new HdfsCorpusLoader<>(conf, inputDirName, new BnsCorpusLineParser(tokenIndexList));
             long index = 0L;
-            for (Vector vectorizedDocument : it) {
+            for (Vector vectorizedDocument : hadoopCorpus) {
+                LOG.debug("Read " + index + "th vectorized document of size: " + vectorizedDocument.size());
+
                 writer.append(new LongWritable(index++), new VectorWritable(vectorizedDocument));
             }
             LOG.info("Sequence file written to HDFS successfully. Docs written: " + index);

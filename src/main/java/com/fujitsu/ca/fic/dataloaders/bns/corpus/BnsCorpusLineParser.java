@@ -1,4 +1,4 @@
-package com.fujitsu.ca.fic.dataloaders.bnscorpus;
+package com.fujitsu.ca.fic.dataloaders.bns.corpus;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.fujitsu.ca.fic.dataloaders.LineParser;
 import com.fujitsu.ca.fic.exceptions.IncorrectLineFormatException;
 
-public class BnsCorpusLineParser implements LineParser {
+public class BnsCorpusLineParser implements LineParser<Vector> {
     private static Logger LOG = LoggerFactory.getLogger(BnsCorpusLineParser.class);
 
     private static final int FIELDS_PER_FEATURE = 6;
