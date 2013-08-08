@@ -20,7 +20,7 @@ public class BnsCorpusLineParser implements LineParser<Vector> {
 
     private final List<String> tokenIndexList;
 
-    BnsCorpusLineParser(List<String> tokenIndexList) {
+    public BnsCorpusLineParser(List<String> tokenIndexList) {
         this.tokenIndexList = tokenIndexList;
     }
 

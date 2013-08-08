@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fujitsu.ca.fic.dataloaders.VocabularyLoader;
+import com.fujitsu.ca.fic.dataloaders.bns.BnsCorpusFactory;
 import com.fujitsu.ca.fic.dataloaders.hdfs.HdfsCorpusLoader;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -34,7 +35,7 @@ public class BnsVocabularyLoader implements VocabularyLoader {
      */
     @Override
     public List<String> loadFromText(Configuration conf, String pathName) throws IOException {
-        HdfsCorpusLoader<Pair<String, Double>> corpusLoader = new HdfsCorpusLoader<>(conf, pathName, new BnsVocabLineParser());
+        HdfsCorpusLoader<Pair<String, Double>> corpusLoader = BnsCorpusFactory.createHdfsVocabLoader(conf, pathName);
         for (Pair<String, Double> nextPair : corpusLoader) {
             LOG.debug("Next Pair: " + nextPair);
             bnsMap.put(nextPair.first, nextPair.second);

@@ -127,5 +127,4 @@ public class HdfsCorpusLoader<E> implements Iterable<E> {
             throw new UnsupportedOperationException();
         }
     }
-
 }
