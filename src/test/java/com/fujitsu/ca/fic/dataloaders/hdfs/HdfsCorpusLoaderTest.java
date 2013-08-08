@@ -1,4 +1,4 @@
-package com.fujitsu.ca.fic.dataloaders.hadoop;
+package com.fujitsu.ca.fic.dataloaders.hdfs;
 
 import java.io.IOException;
 
