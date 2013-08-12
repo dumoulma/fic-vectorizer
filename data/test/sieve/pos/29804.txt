@@ -1,0 +1,20 @@
+1 or more csharp Systems Analysts
+The Alberta Department of Energy, Information Management and Technology Services Branch (IM&TS), Business Solutions Delivery, requires the services of:
+1 or more csharp Systems Analysts
+Provide application services within the Alberta Department of Energy. The Resource(s) will be responsible for development, maintenance, testing and support of applications and interfaces accessing desktop and web applications currently in use within the Alberta Department of Energy. Reporting to the Associate Director of Royalty/Tenure/Communication Applications, the Resource(s) will work under the direction and supervision of a Team Leader.
+The application environment consists of microcomputer applications running on Intel boxes utilizing Microsoft Windows NT Server, Windows 2003 or Windows XP Clients, csharp and Microsoft SQL Server.
+In general, key aspects of the role are:
+- Identifying and documenting client requirements and specifying resulting system changes;
+- Programming planned enhancements;
+- Testing system changes;
+- Providing daily production support and end user support;
+- Ensuring changes to the application meet the department standards and follow the department's change management processes;
+- Maintaining system documentation for the applications including standards and guidelines; and
+- Providing on call support after regular business hours as required.
+Supervisory duties are not required at this time, although the successful Resource(s) may be responsible for providing direction on projects and/or tasks.
+The successful candidate(s) must possess excellent interpersonal and communication skills and experience in communicating directly with the client community, along with a proven ability to function within a team. Resources must also possess excellent diagnostic and problem solving skills.
+Education and past experience should be in keeping with that required to fully understand the technical aspects of the tasks.
+The work location is the 8, 9 & 10th floors at 9942-108 Street, Edmonton, Alberta. The standard workweek is comprised of five (5) days at 7.25 hours per day. Typical business hours are from 8:15 a.m. to 12:00 p.m. and 1:00 p.m. to 4:30 p.m., with resources starting no earlier than 7:30 a.m. However, work hours may vary and overtime and/or standby time may be required. The Department will pay the hourly rate submitted in the response for all overtime hours worked.
+The successful candidate is required to adhere to the Department's business dress code requiring that personnel present a neat appearance with appropriate clothing and to provide their own stationery supplies.
+URL_TAG
+

@@ -1,0 +1,4 @@
+Pivotal6 Trim7.1 Infrastructure project
+The objective of the project is to engage a vendor to design, implement, test, promote to other environments the Pivotal v6 and Trim EDRMS v7.1 base infrastructure as well as the Trim WCM v7.1 infrastructure solution. The vendor should also provide post build support. The solution should use the latest version releases integrated end to end with the OEB environment. This will incorporate Windows Server 2008 R2/(SP-1), Microsoft SQL Server 2008 database, Internet, SharePoint 2010, Office / Outlook 2010, Exchange 2010, Citrix XenApp, and Windows 7 in a Virtualized environment.
+The project is expected to begin on 1st December 2011. Proponents should submit a plan with timelines and deliverables. Proponents and proposed candidates should have prior experience in implementing a similar solution using Trim and Pivotal.
+

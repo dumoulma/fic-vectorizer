@@ -1,0 +1,32 @@
+IHE Subject Matter Expert
+Mohawk Shared Services Inc. began in 1972 as a central laundry for hospitals in southern Ontario. Today, in addition to linen services, we also provide services in supply chain management and employee assistance counseling, as well as a diagnostic imaging repository. Our vision is to excel as a shared services organization by delivering services that support health care and our communities.
+The Mohawk Diagnostic Imaging Repository (DI-r) is a central image and report repository connecting hospital systems in Hamilton, Niagara, Haldimand, Brant, Waterloo and Wellington. Images and reports for diagnostic imaging procedures are available to health care providers in these regions via a web-based application starting fall 2009.
+Projects underway to connect all Ontario hospitals to one of four repositories are scheduled to completed by March 2012. In addition, a provincial project will connect all four DI-r systems in Ontario, giving health care providers access to images and reports from across the province, and eventually Canada.
+Mohawk Shared Services is currently recruiting a contract position for an IHE Subject Matter Expert to assess participating hospitals IHE Compliance to Radiology and Other Interoperability Profiles.
+Integration of Healthcare Enterprise (IHE) Subject Matter Expert 
+Responsibilities:
+Review current documentation provided by other DI-r projects
+Create template for information gathering
+Contact and travel to local site resources and PACS vendors as required to collect their current state IHE compliance data. Implementation and utilization of the following IHE Radiology Profiles is required: 
+1. Scheduled Workflow (SWF) 
+2. Key Image Note (KIN) 
+3. Consistent Presentation of Images (CPI) 
+4. Patient Information Reconciliation (PIR) 
+Consideration and Analysis for Implementation of the following optional IHE Radiology Profile :
+1. Presentation of Grouped Procedures (PGP)
+Evaluation of the cost/benefit of upgrading existing modalities to become fully compliant with the Modality Performed Procedure Step (MPPS) and Storage Commit components of SWF profile will be completed. 
+Complete the required documentation to support completion of the Infoway deliverable. 
+Knowledge and Skills:
+Experience in diagnostic imaging environment, workflow and data flow
+Knowledge of Healthcare Information Systems, particularly Radiology Information Systems and PACS
+Excellent interpersonal, oral and written communication skills
+Excellent conflict resolution and negotiation skills
+Very effective organizational, analytical and problem solving skills
+Decision making skills
+Stress and time management skills
+Computer skills (proficient inMicrosoftOffice programs)
+Scope:
+The successful applicant will be expected to work with site resources (with travel involved) to complete an assessment of the current state of local PACS IHE compliance and to complete the required documentation to support completion of the Infoway deliverable. This is a contract position to March 31, 2012.
+Qualified candidates with a desire to join our innovative team are invited to submit their resume, in confidence to: EMAIL_TAG
+Please note that the posting close date for the above position is October 28, 2011.
+

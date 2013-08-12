@@ -1,0 +1,98 @@
+Research & development for Long Term Evolution (LTE) wireless location based on synthetic array.
+Trade Agreement: Agreement on Internal Trade (AIT)
+Tendering Procedures: The bidder must supply Canadian goods
+and/or services
+Attachment: None
+Competitive Procurement Strategy: Best Overall Proposal
+Comprehensive Land Claim Agreement: No
+Nature of Requirements:
+TITLE
+Research & development for Long Term Evolution (LTE) wireless
+location based on synthetic array.
+REQUIREMENT
+The Department of National Defence has a requirement to conduct
+research and development of innovative self geo-location
+techniques for LTE based on synthetic array processing, by
+analyzing existing methodologies and developing innovative
+synthetic array techniques for self geo-location of LTE devices.
+Theoretical analysis, mathematical models, simulations, and
+laboratory experimentation must be used to develop, assess, and
+validate the new techniques. The reported work and findings
+must be of sufficient detail and complexity to provide
+proof-of-concept data that validates the developed techniques,
+models, and theoretical analysis.
+Phase 1: An analysis of the current LTE standard and its
+physical layer in the context of self geo-location will be
+conducted. This understanding is then applied to an assessment
+f the access nodes and handsets in an effort to develop a
+system level description and a model for the wireless signaling
+f LTE devices.
+Phase 2: Combining methods and location estimation algorithms
+are developed based on LTE signaling and synthetic array
+processing. These new algorithms are verified using simulations
+and experimentation. The performance of the algorithms is then
+analyzed taking into account advanced antenna configurations.
+Optional Phase 3 - Go/ No Go: The findings of Phases 1 and 2 may
+be extended to enhance the self geo-location performance in
+terms of received signal-to-noise-ratio and geo-location
+accuracy using multi-antenna techniques. New developments in
+the LTE standard taking place during the first two phases may be
+also incorporated in Phase 3.
+The period of the Contract is from date of Contract to March 31,
+2013 inclusive.
+The requirement is subject to the provisions of the Agreement on
+Internal Trade (AIT).
+The requirement is limited to Canadian goods and/or services.
+MAXIMUM FUNDING:
+The maximum funding available for the contract resulting from
+the bid solicitation is $150,000.00 (Goods and Services Tax or
+the Harmonized Sales Tax extra, as appropriate). Bids valued in
+excess of this amount will be considered non-responsive. This
+disclosure does not commit Canada to pay the maximum funding
+available.
+MANDATORY TECHNICAL CRITERIA:
+At bid closing time, the Bidder must comply with the following
+mandatory technical criteria and provide the necessary
+documentation to support compliance. Any bid which fails to meet
+the following mandatory technical criteria will be declared
+non-responsive. Each criterion should be addressed separately.
+M1. The Bidder must submit the name and curriculum vitae
+(CV) for the Project Leader,
+which should be submitted in accordance with the Project Leader
+Résumé Summary Sheet as found in Appendix 1 of
+Attachment 2, to clearly demonstrate that it meets all of the
+requirements of this solicitation.
+M2. The Project Leader must have completed a Master's degree
+from a recognized
+Canadian* university, or the equivalent, if obtained outside of
+Canada, in either
+Engineering or Physics.
+*Where the Master's degree was completed and
+btained outside of Canada, Canada reserves the
+right to request a Canadian equivalency document issued by a
+recognized academic credentials
+assessment organization showing the academic level obtained.
+CONTRACTING AUTHORITY
+Laurie D Brault
+Supply Officer
+Public Works and Government Services Canada
+Acquisitions Branch
+Science Procurement Directorate
+Place du Portage, Phase III, 11C1
+11 Laurier Street 
+Gatineau, Quebec
+POSTALCODE_TAG
+Telephone: PHONENUMBER_TAG
+Facsimile: PHONENUMBER_TAG
+E-mail address: EMAIL_TAG
+Delivery Date: Above-mentioned
+The Crown retains the right to negotiate with suppliers on any
+procurement.
+Documents may be submitted in either official language of Canada.
+Brault, Laurie
+11C1, Phase III
+Place du Portage
+11 Laurier St. / 11, rue Laurier
+Gatineau, Québec POSTALCODE_TAG
+PHONENUMBER_TAG 
+
