@@ -6,8 +6,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.mahout.math.Vector;
 import org.hamcrest.collection.IsIterableWithSize;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -25,14 +23,6 @@ public class HdfsCorpusLoaderTest {
 
     @Mock
     LineParser<Vector> lineParser;
-
-    @Before
-    public void setUp() throws Exception {
-    }
-
-    @After
-    public void tearDown() throws Exception {
-    }
 
     @Test
     public void createIteratorDoesntThrowExceptionForValidPath() throws IOException {
