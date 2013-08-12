@@ -3,10 +3,13 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.fujitsu.ca.fic</groupId>
+	<artifactId>fic-vectorizer</artifactId>
 	<version>1.0</version>
+
 	<name>Sieve Corpus Vectorizer</name>
 
-	<artifactId>fic-vectorizer</artifactId>
+	<description>Produces a sequence file of NamedVectors generated from the output from a Pig Job that computes the BNS scores from a given corpus seperated into a positives and negatives examples (documents) folder.
+The sequence files can be easily used by Mahout for processing using any of the classification and/or clustering algorithms.</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -124,7 +127,7 @@
 					</descriptors>
 					<archive>
 						<manifest>
-							<mainClass>com.fujitsu.ca.fic.sievevectorizer.driver.CorpusVectorizationDriver</mainClass>
+							<mainClass>com.fujitsu.ca.fic.sievevectorizer.driver.BnsCorpusVectorizationDriver</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
@@ -144,7 +147,4 @@
 	<prerequisites>
 		<maven>2.2.1</maven>
 	</prerequisites>
-	<description>Produces a sequence file of NamedVectors generated from the output from a Pig Job that computes the BNS scores from a given corpus seperated into a positives and negatives examples (documents) folder.
-
-The sequence files can be easily used by Mahout for processing using any of the classification and/or clustering algorithms.</description>
 </project>

@@ -14,10 +14,6 @@ import com.fujitsu.ca.fic.exceptions.IncorrectLineFormatException;
 public class BnsCorpusLineParser implements LineParser<Vector> {
     private static Logger LOG = LoggerFactory.getLogger(BnsCorpusLineParser.class);
 
-    private static final int FIELDS_PER_FEATURE = 6;
-    private static final int BNS_SCORE_INDEX = 4;
-    private static final int TOKEN_INDEX = 3;
-
     private final List<String> tokenIndexList;
 
     public BnsCorpusLineParser(List<String> tokenIndexList) {
@@ -30,12 +26,16 @@ public class BnsCorpusLineParser implements LineParser<Vector> {
     public Vector parseFields(String line) throws IncorrectLineFormatException {
         int cardinality = tokenIndexList.size();
         double[] features = new double[cardinality];
-        System.out.println(i + ": " + line);
+        LOG.info(i + ": " + line);
 
+        // (27677.txt,1),{...
+        String docLabelField = line.substring(line.indexOf('(') + 1, line.indexOf(')'));
+        String label = docLabelField.split(",")[1];
+
+        // 'eat' the field,docid field and start processing fields
         line = line.substring(line.indexOf('{') + 1);
-        int labelIndex = line.indexOf(',') + 1;
-        String label = line.substring(labelIndex, labelIndex + 1);
 
+        // each field format: (27677.txt,1,rfp,0.72853)
         while (line.length() > 0) {
             int start = line.indexOf('(');
             int end = line.indexOf(')');
@@ -56,22 +56,14 @@ public class BnsCorpusLineParser implements LineParser<Vector> {
         return new NamedVector(vector, label);
     }
 
-    // gets DOC.txt, LABEL,TOKEN,TOKEN,BNS_SCORE,COUNT
-    // tokenized as: doc txt label token token bns count
-    private void addFieldToFeatures(String substring, double[] features) throws IncorrectLineFormatException {
-        String[] parts = substring.split(",");
-        // hack to fix the case where a word is a number like 100,000.00
-        // should be generalized, maybe through slightly smarter exceptions
-        if (parts.length == 8) {
-            parts[3] = parts[2] + "," + parts[3];
-            parts[4] = parts[6];
-        } else if (parts.length != FIELDS_PER_FEATURE) {
-            String message = "addFieldToFeatures: unexpected number of fields from split of line: " + substring;
-            LOG.warn(message);
-            throw new IncorrectLineFormatException(message);
-        }
+    // gets DOC.txt, LABEL, TOKEN, BNS_SCORE
+    // tokenized as: doc txt label token bns
+    private void addFieldToFeatures(String featureField, double[] features) throws IncorrectLineFormatException {
+        LOG.debug(featureField);
+        int tokenFieldStart = featureField.indexOf(',', featureField.indexOf(',') + 1) + 1;
+        int tokenFieldEnd = featureField.lastIndexOf(',');
 
-        String token = parts[TOKEN_INDEX];
+        String token = featureField.substring(tokenFieldStart, tokenFieldEnd);
         int featureIndex = tokenIndexList.indexOf(token);
 
         // The vocabulary and the scoring are done together, the token should ALWAYS be found.
@@ -81,8 +73,16 @@ public class BnsCorpusLineParser implements LineParser<Vector> {
             LOG.error(message);
             throw new IncorrectLineFormatException(message);
         }
-
-        features[featureIndex] = Double.parseDouble(parts[BNS_SCORE_INDEX]);
+        double bnsScore = 0.0;
+        String bnsScoreField = featureField.substring(tokenFieldEnd + 1);
+        try {
+            bnsScore = Double.parseDouble(bnsScoreField);
+        } catch (NumberFormatException nfe) {
+            String message = nfe.toString() + "for field: " + bnsScoreField;
+            LOG.warn(message);
+            throw new IncorrectLineFormatException(message);
+        }
+        features[featureIndex] = bnsScore;
+        LOG.debug(String.format("%s %d %f", token, featureIndex, features[featureIndex]));
     }
-
 }

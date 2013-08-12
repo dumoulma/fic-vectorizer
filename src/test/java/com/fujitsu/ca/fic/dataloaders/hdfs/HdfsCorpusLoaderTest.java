@@ -8,7 +8,6 @@ import org.apache.mahout.math.Vector;
 import org.hamcrest.collection.IsIterableWithSize;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -35,12 +34,12 @@ public class HdfsCorpusLoaderTest {
     public void tearDown() throws Exception {
     }
 
-    @Ignore
+    @Test
     public void createIteratorDoesntThrowExceptionForValidPath() throws IOException {
         new HdfsCorpusLoader<>(realConf, "data/bns-corpus", lineParser);
     }
 
-    @Ignore
+    @Test
     public void iteratorOnOneFileIteratesCorrectNumberOfTimes() throws IOException {
         Path inputPath = new Path("data/test/bns-corpus/one-file-3lines");
 
@@ -49,7 +48,7 @@ public class HdfsCorpusLoaderTest {
         assertThat(it, IsIterableWithSize.<Vector> iterableWithSize(equalTo(3)));
     }
 
-    @Ignore
+    @Test
     public void iteratorOnOneLargeFilesIteratesToTheEnd() throws IOException {
         Path inputPath = new Path("data/test/bns-corpus");
 
