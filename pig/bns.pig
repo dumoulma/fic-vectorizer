@@ -78,8 +78,14 @@ outPipe = FOREACH outPipeJoined
                      bnsPipe::bns_score as bns_score;
 outPipeGrouped = GROUP outPipe BY (doc_id,label);
 
+outPipeRandom = foreach outPipeGrouped generate *, RANDOM() as random;
+outPipeRandom = order outPipeRandom by random;
+SPLIT outPipeRandom INTO train IF random < 0.6, test OTHERWISE;
+
 rmf $OUTPUT_DIR/bns-vocab
-rmf $OUTPUT_DIR/bns-corpus
+rmf $OUTPUT_DIR/bns-corpus/test
+rmf $OUTPUT_DIR/bns-corpus/train
 
 STORE bnsPipe INTO '$OUTPUT_DIR/bns-vocab' USING PigStorage(',','schema');
-STORE outPipeGrouped INTO '$OUTPUT_DIR/bns-corpus' USING PigStorage(',','schema');
+STORE test INTO '$OUTPUT_DIR/test' USING PigStorage(',','schema');
+STORE train INTO '$OUTPUT_DIR/train' USING PigStorage(',','schema');

@@ -1,6 +1,6 @@
 POS_INPUT_DIR=data/sieve/corpus6/spam
 NEG_INPUT_DIR=data/sieve/corpus6/relevant
-OUTPUT_DIR=data/out
+OUTPUT_DIR=data/out/bns-corpus/spam-vs-rel
 LIB_DIR=pig/lib
 MIN_COUNT=2
 MAX_VOCAB_SIZE=5000

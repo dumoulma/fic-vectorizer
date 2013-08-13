@@ -1,0 +1,7 @@
+POS_INPUT_DIR=data/sieve/corpus6/relevant
+NEG_INPUT_DIR=data/sieve/corpus6/not-relevant
+OUTPUT_DIR=data/out/bns-corpus/rel-vs-notrel
+LIB_DIR=pig/lib
+MIN_COUNT=2
+MAX_VOCAB_SIZE=5000
+MIN_BNS_SCORE=0.0001

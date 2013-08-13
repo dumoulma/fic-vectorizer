@@ -1,4 +1,4 @@
-REGISTER target/caissepop-1.2.jar;
+REGISTER pig/lib/caissepop-1.2.jar;
 REGISTER pig/lib/commons-math3-3.2.jar;
 REGISTER pig/lib/lucene-*.jar;
 
@@ -58,7 +58,7 @@ bnsPipe = FOREACH posNegGrouped {
 		    neg_tokens = neg_tokens.token;
 		    tp = COUNT(pos_tokens);
 		    fp = COUNT(neg_tokens); 
-		    all_count = (tp + fp);
+		    all_count = (int)(tp + fp);
 		    GENERATE group AS token, 
 		             BNS(tp, posDocs.n_docs, fp, negDocs.n_docs) AS bns_score, 
 		             all_count AS all_count:int;
@@ -76,4 +76,9 @@ outPipe = FOREACH outPipeJoined
                      vocabUnion::label as label, 
                      vocabUnion::token as token, 
                      bnsPipe::bns_score as bns_score;
-outPipeGrouped = GROUP outPipe BY doc_id,label;
+outPipeGrouped = GROUP outPipe BY (doc_id,label);
+outPipeRandom = foreach outPipeGrouped generate *, RANDOM() as random;
+outPipeRandom = order outPipeRandom by random;
+
+SPLIT outPipeRandom INTO train IF random < 0.6, train OTHERWISE;
+
