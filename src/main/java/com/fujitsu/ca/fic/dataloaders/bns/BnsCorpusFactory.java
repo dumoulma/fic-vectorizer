@@ -18,6 +18,6 @@ public class BnsCorpusFactory {
     }
 
     public static HdfsCorpusLoader<Pair<String, Double>> createHdfsVocabLoader(Configuration conf, String pathName) throws IOException {
-        return new HdfsCorpusLoader<>(conf, pathName, new BnsVocabLineParser());
+        return new HdfsCorpusLoader<Pair<String, Double>>(conf, pathName, new BnsVocabLineParser());
     }
 }

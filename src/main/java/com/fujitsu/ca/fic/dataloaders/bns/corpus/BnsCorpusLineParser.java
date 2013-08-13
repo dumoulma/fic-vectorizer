@@ -24,9 +24,10 @@ public class BnsCorpusLineParser implements LineParser<Vector> {
 
     @Override
     public Vector parseFields(String line) throws IncorrectLineFormatException {
+        LOG.debug(i + ": " + line);
+
         int cardinality = tokenIndexList.size();
         double[] features = new double[cardinality];
-        LOG.info(i + ": " + line);
 
         // (27677.txt,1),{...
         String docLabelField = line.substring(line.indexOf('(') + 1, line.indexOf(')'));
@@ -69,7 +70,7 @@ public class BnsCorpusLineParser implements LineParser<Vector> {
         // The vocabulary and the scoring are done together, the token should ALWAYS be found.
         // if it is not, the error MUST be in the pig script BNS.PIG.
         if (featureIndex == -1) {
-            String message = "token --" + token + "-- was not found in the vocabulary! Check bns.pig.";
+            String message = "token --" + token + "-- was not found in the vocabulary! Check bns.pig for errors.";
             LOG.error(message);
             throw new IncorrectLineFormatException(message);
         }

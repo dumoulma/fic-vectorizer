@@ -10,32 +10,38 @@ import com.fujitsu.ca.fic.exceptions.IncorrectLineFormatException;
 public class BnsVocabLineParser implements LineParser<Pair<String, Double>> {
     private static Logger LOG = LoggerFactory.getLogger(BnsVocabLineParser.class);
 
+    /**
+     * Parse one line of the vocab output of the bns.pig job and provide a pair<token,bns_score>.
+     * <p>
+     * A line is formatted: BNS_SCORE:double, TOKEN:String, COUNT:long
+     * </p>
+     */
     @Override
     public Pair<String, Double> parseFields(String line) throws IncorrectLineFormatException {
-        String token;
-        Double bnsScore;
+        LOG.debug("parseFiles: " + line);
 
         try {
-            String[] fields = line.split(",");
-            if (fields.length < 3 || fields.length > 4) {
-                String message = "parseFields: unexpected number of fields for line: " + line;
-                LOG.warn(message);
-                throw new IncorrectLineFormatException(message);
-            }
+            Double bnsScore = Double.parseDouble(line.substring(0, line.indexOf(',')));
+            int tokenFieldStart = line.indexOf(',') + 1;
+            int tokenFieldEnd = line.lastIndexOf(',');
+            String token = line.substring(tokenFieldStart, tokenFieldEnd);
+            LOG.debug(String.format("Pair: <%s, %f>", token, bnsScore));
 
-            if (fields.length == 4) {
-                fields[0] = fields[0] + "," + fields[1];
-                fields[1] = fields[2];
-            }
-            token = fields[0];
-            bnsScore = Double.parseDouble(fields[1]);
+            return new Pair<String, Double>(token, bnsScore);
+        } catch (NumberFormatException nfe) {
+            String message = "parseFields: could not parse BNS value in line: " + line;
+            LOG.warn(message);
+            throw new IncorrectLineFormatException(message);
 
-        } catch (Exception e) {
-            LOG.warn("parseFields: could not parse line: " + line);
-            throw new IncorrectLineFormatException("Could not parse line: \n" + line);
+        } catch (ArrayIndexOutOfBoundsException aioobe) {
+            String message = "parseFields: could not parse token value in line: " + line;
+            LOG.warn(message);
+            throw new IncorrectLineFormatException(message);
+
+        } catch (RuntimeException rte) {
+            String message = "parseFields: Unknown error parsing line: " + line;
+            LOG.warn(message);
+            throw new IncorrectLineFormatException(message);
         }
-        LOG.debug(String.format("Pair: <%s, %f>", token, bnsScore));
-        return new Pair<String, Double>(token, bnsScore);
     }
-
 }

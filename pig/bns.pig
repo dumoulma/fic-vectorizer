@@ -59,8 +59,8 @@ bnsPipe = FOREACH posNegGrouped {
             tp = COUNT(pos_tokens);
             fp = COUNT(neg_tokens); 
             all_count = (tp + fp);
-            GENERATE group AS token, 
-                     BNS(tp, posDocs.n_docs, fp, negDocs.n_docs) AS bns_score, 
+            GENERATE BNS(tp, posDocs.n_docs, fp, negDocs.n_docs) AS bns_score,
+                     group AS token, 
                      all_count AS all_count:long;
           }
 
