@@ -14,9 +14,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 public class BnsCorpusLineParserTest {
-    private static String correctLine1 = "(27677.txt,0),{(27677.txt,0,blue,0.28095),(27677.txt,0,green,0.22829),(27677.txt,0,yellow,1.98149)}";
-    private static String correctLineWithUnkToken = "(27677.txt,0),{(27677.txt,0,cyan,0.28095),(27677.txt,0,green,0.22829),(27677.txt,0,yellow,1.98149)}";
-    private static String correctLineWithCommaInToken = "(27677.txt,0),{(27677.txt,0,100,000,0.28095),(27677.txt,0,green,0.22829),(27677.txt,0,yellow,1.98149)}";
+    private static String correctLine1 = "(27677.txt,0),{(27677.txt,0,blue,0.28095),(27677.txt,0,green,0.22829),(27677.txt,0,yellow,1.98149)},0.919287341982";
+    private static String correctLineWithUnkToken = "(27677.txt,0),{(27677.txt,0,cyan,0.28095),(27677.txt,0,green,0.22829),(27677.txt,0,yellow,1.98149)},0.919287341982";
+    private static String correctLineWithCommaInToken = "(27677.txt,0),{(27677.txt,0,100,000,0.28095),(27677.txt,0,green,0.22829),(27677.txt,0,yellow,1.98149)},0.919287341982";
     private final List<String> tokenIndexList = Lists.newArrayList("blue", "green", "red", "yellow", "orange");
     private final List<String> tokenIndexList2 = Lists.newArrayList("100,000", "green", "red", "yellow", "orange");
 

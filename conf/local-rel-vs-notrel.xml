@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property>
+        <name>hadoop.tmp.dir</name>
+        <value>/tmp/hadoop-${user.name}</value>
+    </property>
+    <property>
+        <name>fs.default.name</name>
+        <value>file:///</value>
+    </property>
+    <property>
+        <name>mapred.job.tracker</name>
+        <value>local</value>
+    </property>
+    <property>
+        <name>mapred.child.java.opts</name>
+        <value>-Xmx2048m</value>
+    </property>
+    <property>
+        <name>data.vocab.path</name>
+        <value>data/out/bns-corpus/rel-vs-notrel/bns-vocab</value>
+    </property>
+    <property>
+        <name>data.corpus.train.path</name>
+        <value>data/out/bns-corpus/rel-vs-notrel/train</value>
+    </property>
+    <property>
+        <name>data.corpus.test.path</name>
+        <value>data/out/bns-corpus/rel-vs-notrel/test</value>
+    </property>
+    <property>
+        <name>data.sequence.output.path</name>
+        <value>data/out/bns-corpus/rel-vs-notrel</value>
+    </property>
+</configuration>

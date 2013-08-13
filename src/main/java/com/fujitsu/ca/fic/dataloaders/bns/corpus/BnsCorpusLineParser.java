@@ -22,6 +22,9 @@ public class BnsCorpusLineParser implements LineParser<Vector> {
 
     static int i = 0;
 
+    /**
+     * Expected format: (DOC_NAME:String,LABEL:int),{(DOC_NAME:String,LABEL:int,TOKEN:String,BNS_SCORE:double),...},RANDOM_NUM:double
+     */
     @Override
     public Vector parseFields(String line) throws IncorrectLineFormatException {
         LOG.debug(i + ": " + line);
@@ -34,7 +37,7 @@ public class BnsCorpusLineParser implements LineParser<Vector> {
         String label = docLabelField.split(",")[1];
 
         // 'eat' the field,docid field and start processing fields
-        line = line.substring(line.indexOf('{') + 1);
+        line = line.substring(line.indexOf('{') + 1, line.indexOf('}') + 1);
 
         // each field format: (27677.txt,1,rfp,0.72853)
         while (line.length() > 0) {
