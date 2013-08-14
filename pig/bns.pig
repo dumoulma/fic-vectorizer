@@ -17,21 +17,26 @@ positive_docs    = LOAD '$POS_INPUT_DIR' USING PigStorage('\n','-tagsource')
                      AS (doc_id:chararray, text:chararray);
 
 pos_tokens = FOREACH positive_docs 
-                GENERATE doc_id, 
+                GENERATE CONCAT('$POS_INPUT_DIR', doc_id) as doc_id:chararray, 
                          1 AS label:long,
                          FLATTEN(TokenizeText(text)) AS token:chararray;
-    
+
 pos_tokens = FILTER pos_tokens BY token MATCHES '\\w.*';
 pos_tokens = FILTER pos_tokens BY SIZE(token) > 1L;
+pos_tokens = DISTINCT pos_tokens;
+    
 
 negative_docs = LOAD '$NEG_INPUT_DIR' USING PigStorage('\n','-tagsource') 
                      AS (doc_id:chararray, text:chararray);
+
 neg_tokens = FOREACH negative_docs 
-                GENERATE doc_id, 
+                GENERATE CONCAT('$NEG_INPUT_DIR', doc_id) as doc_id:chararray, 
                          0 AS label:long,
                          FLATTEN(TokenizeText(text)) AS token:chararray;
+
 neg_tokens = FILTER neg_tokens BY token MATCHES '\\w.*';
 neg_tokens = FILTER neg_tokens BY SIZE(token) > 1L;
+neg_tokens = DISTINCT neg_tokens;
 
 -- The vocabulary of the corpus is the union of tokens found in the positive documents
 -- and the ones in the negative documents.

@@ -23,6 +23,7 @@ pos_tokens = FOREACH positive_docs
     
 pos_tokens = FILTER pos_tokens BY token MATCHES '\\w.*';
 pos_tokens = FILTER pos_tokens BY SIZE(token) > 1L;
+pos_tokens = DISTINCT pos_tokens;
 
 negative_docs = LOAD 'data/test/sieve/neg' USING PigStorage('\n','-tagsource') 
                      AS (doc_id:chararray, text:chararray);
@@ -32,11 +33,11 @@ neg_tokens = FOREACH negative_docs
                          FLATTEN(TokenizeText(text)) AS token:chararray;
 neg_tokens = FILTER neg_tokens BY token MATCHES '\\w.*';
 neg_tokens = FILTER neg_tokens BY SIZE(token) > 1L;
+neg_tokens = DISTINCT neg_tokens;
 
 -- The vocabulary of the corpus is the union of tokens found in the positive documents
 -- and the ones in the negative documents.
 vocab_union = UNION pos_tokens, neg_tokens;
-
 -- count the number of positive and negative documents
 posDocs = FOREACH pos_tokens GENERATE doc_id;
 posDocs = DISTINCT posDocs;
@@ -82,4 +83,11 @@ bnsPipe_indexed = JOIN tokens_indexed by token, bnsPipe by token;
 
 -- Here we want to group on the doc_id for the last vectorization step
 outPipe_joined = JOIN vocab_union BY token, bnsPipe_indexed BY tokens_indexed::token;
+
+outPipe = FOREACH outPipe_joined 
+            GENERATE vocab_union::doc_id as doc_id, 
+                     vocab_union::label as label, 
+                     index as index,
+                     bns_score as bns_score;
+outPipeGrouped = GROUP outPipe BY (doc_id,label);
 
