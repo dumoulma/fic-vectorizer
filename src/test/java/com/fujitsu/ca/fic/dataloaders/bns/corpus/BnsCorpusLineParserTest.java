@@ -14,39 +14,30 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 public class BnsCorpusLineParserTest {
-    private static String correctLine1 = "(27677.txt,0),{(27677.txt,0,blue,0.28095),(27677.txt,0,green,0.22829),(27677.txt,0,yellow,1.98149)},0.919287341982";
-    private static String correctLineWithUnkToken = "(27677.txt,0),{(27677.txt,0,cyan,0.28095),(27677.txt,0,green,0.22829),(27677.txt,0,yellow,1.98149)},0.919287341982";
-    private static String correctLineWithCommaInToken = "(27677.txt,0),{(27677.txt,0,100,000,0.28095),(27677.txt,0,green,0.22829),(27677.txt,0,yellow,1.98149)},0.919287341982";
+    private static String correctLine1 = "(27677.txt,0),{(27677.txt,0,0,0.28095),(27677.txt,0,1,0.22829),(27677.txt,0,3,1.98149)},0.919287341982";
+    private static String correctLineWithUnkToken = "(27677.txt,0),{(27677.txt,0,-1,0.28095),(27677.txt,0,1,0.22829),(27677.txt,0,3,1.98149)},0.919287341982";
     private final List<String> tokenIndexList = Lists.newArrayList("blue", "green", "red", "yellow", "orange");
-    private final List<String> tokenIndexList2 = Lists.newArrayList("100,000", "green", "red", "yellow", "orange");
+    private BnsCorpusLineParser bnsLineParser;
 
     @Before
     public void setUp() {
+        bnsLineParser = new BnsCorpusLineParser(tokenIndexList.size());
     }
 
     @Test
-    public void parseCorrectlyFormatterLineDoesntThrowException() throws IncorrectLineFormatException {
-        new BnsCorpusLineParser(tokenIndexList).parseFields(correctLine1);
+    public void parseCorrectlyFormatterLineDoesntThrowException() {
+        bnsLineParser.parseFields(correctLine1);
     }
 
-    @Test(expected = IncorrectLineFormatException.class)
+    @Test
     public void parseALineWithAnUnknownTokenShouldDoSomething() throws IncorrectLineFormatException {
-        new BnsCorpusLineParser(tokenIndexList).parseFields(correctLineWithUnkToken);
+        bnsLineParser.parseFields(correctLineWithUnkToken);
     }
 
     @Test
     public void parseACorrectLineReturnsVectorWithCorrectSizeAndValues() throws IncorrectLineFormatException {
-        Vector vector = new BnsCorpusLineParser(tokenIndexList).parseFields(correctLine1);
+        Vector vector = bnsLineParser.parseFields(correctLine1);
         assertThat(vector.size(), equalTo(tokenIndexList.size()));
-        assertThat(vector.get(0), equalTo(0.28095));
-        assertThat(vector.get(1), equalTo(0.22829));
-        assertThat(vector.get(3), equalTo(1.98149));
-    }
-
-    @Test
-    public void parseACorrectLineWithOneTokenWithACommaReturnsVectorWithCorrectSizeAndValues() throws IncorrectLineFormatException {
-        Vector vector = new BnsCorpusLineParser(tokenIndexList2).parseFields(correctLineWithCommaInToken);
-        assertThat(vector.size(), equalTo(tokenIndexList2.size()));
         assertThat(vector.get(0), equalTo(0.28095));
         assertThat(vector.get(1), equalTo(0.22829));
         assertThat(vector.get(3), equalTo(1.98149));

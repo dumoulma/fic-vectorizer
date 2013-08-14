@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fujitsu.ca.fic.dataloaders.LineParser;
-import com.fujitsu.ca.fic.exceptions.IncorrectLineFormatException;
 
 public class BnsVocabLineParser implements LineParser<Pair<String, Double>> {
     private static Logger LOG = LoggerFactory.getLogger(BnsVocabLineParser.class);
@@ -17,31 +16,32 @@ public class BnsVocabLineParser implements LineParser<Pair<String, Double>> {
      * </p>
      */
     @Override
-    public Pair<String, Double> parseFields(String line) throws IncorrectLineFormatException {
+    public Pair<String, Double> parseFields(String line) {
         LOG.debug("parseFiles: " + line);
-
+        Double bnsScore = -0.0;
+        String token = "!!UNKNOWN!!";
         try {
-            Double bnsScore = Double.parseDouble(line.substring(0, line.indexOf(',')));
-            int tokenFieldStart = line.indexOf(',') + 1;
-            int tokenFieldEnd = line.lastIndexOf(',');
-            String token = line.substring(tokenFieldStart, tokenFieldEnd);
+            String[] fields = line.split(";");
+            token = fields[1];
+            bnsScore = Double.parseDouble(fields[0]);
+            // Double bnsScore = Double.parseDouble(line.substring(0, line.indexOf(',')));
+            // int tokenFieldStart = line.indexOf(',') + 1;
+            // int tokenFieldEnd = line.lastIndexOf(',');
+            // String token = line.substring(tokenFieldStart, tokenFieldEnd);
             LOG.debug(String.format("Pair: <%s, %f>", token, bnsScore));
 
-            return new Pair<String, Double>(token, bnsScore);
         } catch (NumberFormatException nfe) {
             String message = "parseFields: could not parse BNS value in line: " + line;
             LOG.warn(message);
-            throw new IncorrectLineFormatException(message);
 
         } catch (ArrayIndexOutOfBoundsException aioobe) {
             String message = "parseFields: could not parse token value in line: " + line;
             LOG.warn(message);
-            throw new IncorrectLineFormatException(message);
 
         } catch (RuntimeException rte) {
             String message = "parseFields: Unknown error parsing line: " + line;
             LOG.warn(message);
-            throw new IncorrectLineFormatException(message);
         }
+        return new Pair<String, Double>(token, bnsScore);
     }
 }

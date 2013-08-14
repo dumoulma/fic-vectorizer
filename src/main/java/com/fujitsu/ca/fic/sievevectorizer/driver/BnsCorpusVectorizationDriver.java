@@ -38,21 +38,22 @@ public class BnsCorpusVectorizationDriver extends Configured implements Tool {
         String outputFilename = conf.get("data.sequence.output.path");
 
         if (vocabDir == null | trainDir == null | testDir == null | outputFilename == null) {
-            LOG.error("The configuration file was not loaded correctly! Please check: \n" + "data.vocab.path \n" + "data.corpus.path \n"
-                    + "data.sequence.output.path \n");
+            LOG.error("The configuration file was not loaded correctly! Please check: \n" + "data.vocab.path \n"
+                    + "data.corpus.train.path \n" + "data.corpus.test.path \n" + "data.sequence.output.path \n");
             throw new IllegalStateException("The expected configuration values for data paths have not been found.");
         }
 
         LOG.info("Loading vocabulary from path: " + vocabDir);
         VocabularyLoader vocabLoader = new BnsVocabularyLoader();
         List<String> tokenIndexList = vocabLoader.loadFromText(conf, vocabDir);
-        LOG.info("The vocab file has been loaded successfully with " + tokenIndexList.size() + " entries.");
+        int vocabSize = tokenIndexList.size();
+        LOG.info("The vocab file has been loaded successfully with " + vocabSize + " entries.");
 
         CorpusVectorizer corpus = new BnsCorpusVectorizer();
         LOG.info("Vectorizing train documents...");
-        corpus.convertToSequenceFile(conf, tokenIndexList, trainDir, outputFilename + "/train.seq");
+        corpus.convertToSequenceFile(conf, vocabSize, trainDir, outputFilename + "/train.seq");
         LOG.info("Vectorizing test documents...");
-        corpus.convertToSequenceFile(conf, tokenIndexList, testDir, outputFilename + "/test.seq");
+        corpus.convertToSequenceFile(conf, vocabSize, testDir, outputFilename + "/test.seq");
         LOG.info("BNS Vectorization successful!");
         return Job.SUCCESS;
     }

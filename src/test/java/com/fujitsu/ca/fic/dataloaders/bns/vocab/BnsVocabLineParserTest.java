@@ -11,23 +11,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 public class BnsVocabLineParserTest {
-    private static String correctLine = "5.10394,manitoba,731";
-    private static String tokenOneCommaLine = "1.0,100,000,5";
-    private static String tokenThreeCommasLine = "1.0,2,000,000,000,5";
+    private static String correctLine = "5.10394;manitoba;731";
+    private static String tokenOneCommaLine = "1.0;100,000;5";
+    private static String tokenThreeCommasLine = "1.0;2,000,000,000;5";
     private static BnsVocabLineParser parser = new BnsVocabLineParser();
 
     @Before
     public void setUp() {
-    }
-
-    @Test
-    public void parseACorrectLineDoesntThrowException() throws IncorrectLineFormatException {
-        parser.parseFields(correctLine);
-    }
-
-    @Test(expected = IncorrectLineFormatException.class)
-    public void parseAnIncorrectLineThrowsException() throws IncorrectLineFormatException {
-        parser.parseFields("blahblah");
     }
 
     @Test

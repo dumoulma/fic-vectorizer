@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fujitsu.ca.fic.dataloaders.LineParser;
-import com.fujitsu.ca.fic.exceptions.IncorrectLineFormatException;
 import com.google.common.collect.Lists;
 
 public class HdfsCorpusLoader<E> implements Iterable<E> {
@@ -114,11 +113,7 @@ public class HdfsCorpusLoader<E> implements Iterable<E> {
         @Override
         public E next() {
             E nextDoc = null;
-            try {
-                nextDoc = lineParser.parseFields(nextLine);
-            } catch (IncorrectLineFormatException e) {
-                LOG.warn(e.toString());
-            }
+            nextDoc = lineParser.parseFields(nextLine);
             return nextDoc;
         }
 

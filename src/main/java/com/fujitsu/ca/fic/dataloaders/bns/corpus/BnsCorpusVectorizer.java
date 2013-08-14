@@ -1,14 +1,14 @@
 package com.fujitsu.ca.fic.dataloaders.bns.corpus;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.Text;
 import org.apache.mahout.common.HadoopUtil;
+import org.apache.mahout.math.NamedVector;
 import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 import org.slf4j.Logger;
@@ -22,21 +22,24 @@ public class BnsCorpusVectorizer implements CorpusVectorizer {
     private static Logger LOG = LoggerFactory.getLogger(BnsCorpusVectorizer.class);
 
     @Override
-    public void convertToSequenceFile(Configuration conf, List<String> tokenIndexList, String inputDirName, String outputDirName)
-            throws IOException {
+    public void convertToSequenceFile(Configuration conf, int cardinality, String inputDirName, String outputDirName) throws IOException {
         SequenceFile.Writer writer = null;
         try {
             Path outputPath = new Path(outputDirName);
             HadoopUtil.delete(conf, outputPath);
 
-            writer = SequenceFile.createWriter(FileSystem.get(conf), conf, outputPath, LongWritable.class, VectorWritable.class);
+            writer = SequenceFile.createWriter(FileSystem.get(conf), conf, outputPath, Text.class, VectorWritable.class);
 
-            HdfsCorpusLoader<Vector> hadoopCorpus = BnsCorpusFactory.createHdfsCorpusLoader(conf, inputDirName, tokenIndexList);
+            HdfsCorpusLoader<Vector> hdfsLoader = BnsCorpusFactory.createHdfsCorpusLoader(conf, inputDirName, cardinality);
             long index = 0L;
-            for (Vector vectorizedDocument : hadoopCorpus) {
-                LOG.debug("Read " + index + "th vectorized document of size: " + vectorizedDocument.size());
+            for (Vector nextVectorizedDocument : hdfsLoader) {
+                LOG.debug("Read " + index++ + "th vectorized document");
+                String docLabel = ((NamedVector) nextVectorizedDocument).getName();
+                String[] parts = docLabel.split(",");
+                String docName = parts[0];
+                String label = parts[1];
 
-                writer.append(new LongWritable(index++), new VectorWritable(vectorizedDocument));
+                writer.append(new Text(docName), new VectorWritable(new NamedVector(nextVectorizedDocument, label)));
             }
             LOG.info("Sequence file written to HDFS successfully. Docs written: " + index);
         } finally {

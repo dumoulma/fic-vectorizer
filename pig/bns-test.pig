@@ -1,6 +1,7 @@
 REGISTER pig/lib/caissepop-1.2.jar;
 REGISTER pig/lib/commons-math3-3.2.jar;
 REGISTER pig/lib/lucene-*.jar;
+REGISTER pig/lib/datafu-*.jar
 
 --%default MIN_COUNT 2
 --%default MAX_VOCAB_SIZE 5000
@@ -8,6 +9,7 @@ REGISTER pig/lib/lucene-*.jar;
 
 DEFINE TokenizeText com.fujitsu.ca.fic.caissepop.evaluation.TokenizeText();
 DEFINE BNS com.fujitsu.ca.fic.caissepop.evaluation.ComputeBns();
+DEFINE ENUMERATE datafu.pig.bags.Enumerate();
 
 -- Load positive and negative documents, tokenize and tag with doc_id (the document name) 
 -- and label (1 for positive, 0 for negative)
@@ -33,7 +35,7 @@ neg_tokens = FILTER neg_tokens BY SIZE(token) > 1L;
 
 -- The vocabulary of the corpus is the union of tokens found in the positive documents
 -- and the ones in the negative documents.
-vocabUnion = UNION pos_tokens, neg_tokens;
+vocab_union = UNION pos_tokens, neg_tokens;
 
 -- count the number of positive and negative documents
 posDocs = FOREACH pos_tokens GENERATE doc_id;
@@ -54,31 +56,30 @@ posNegGrouped = COGROUP pos_tokens BY token, neg_tokens BY token;
 -- combined with the count of positive and negative documents, we can compute the bns score of the token
 -- its easy to get the total count of the token as well, so we compute it here too.
 bnsPipe = FOREACH posNegGrouped {
-		    pos_tokens = pos_tokens.token;
-		    neg_tokens = neg_tokens.token;
-		    tp = COUNT(pos_tokens);
-		    fp = COUNT(neg_tokens); 
-		    all_count = (int)(tp + fp);
-		    GENERATE group AS token, 
-		             BNS(tp, posDocs.n_docs, fp, negDocs.n_docs) AS bns_score, 
-		             all_count AS all_count:int;
-		  }
+            pos_tokens = pos_tokens.token;
+            neg_tokens = neg_tokens.token;
+            tp = COUNT(pos_tokens);
+            fp = COUNT(neg_tokens); 
+            all_count = (tp + fp);
+            GENERATE BNS(tp, posDocs.n_docs, fp, negDocs.n_docs) AS bns_score,
+                     group AS token, 
+                     all_count AS all_count:long;
+          }
 
--- Filters, by token frequency and BNS value and vocabulary size		  
+-- Filters, by token frequency and BNS value and vocabulary size          
 bnsPipe = FILTER bnsPipe BY (all_count > 1) OR (bns_score > 0.1);
 bnsPipe = ORDER bnsPipe BY bns_score DESC;
-bnsPipe = LIMIT bnsPipe 5000;
+--bnsPipe = LIMIT bnsPipe $MAX_VOCAB_SIZE;
+
+-- Generate an index for each of the words of the final vocabulary. will be used to vectorize 
+-- in the Store UDF.
+all_vocab = FOREACH (GROUP bnsPipe ALL) {
+    all_tokens = DISTINCT bnsPipe.token;
+    GENERATE all_tokens;
+}
+tokens_indexed = FOREACH all_vocab GENERATE FLATTEN(ENUMERATE(all_tokens)) as(token, index:long);
+bnsPipe_indexed = JOIN tokens_indexed by token, bnsPipe by token;
 
 -- Here we want to group on the doc_id for the last vectorization step
-outPipeJoined = JOIN vocabUnion BY token, bnsPipe BY token;
-outPipe = FOREACH outPipeJoined 
-            GENERATE vocabUnion::doc_id as doc_id, 
-                     vocabUnion::label as label, 
-                     vocabUnion::token as token, 
-                     bnsPipe::bns_score as bns_score;
-outPipeGrouped = GROUP outPipe BY (doc_id,label);
-outPipeRandom = foreach outPipeGrouped generate *, RANDOM() as random;
-outPipeRandom = order outPipeRandom by random;
-
-SPLIT outPipeRandom INTO train IF random < 0.6, train OTHERWISE;
+outPipe_joined = JOIN vocab_union BY token, bnsPipe_indexed BY tokens_indexed::token;
 

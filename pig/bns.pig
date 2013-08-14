@@ -1,6 +1,7 @@
 REGISTER $LIB_DIR/caissepop-1.2.jar;
 REGISTER $LIB_DIR/commons-math3-3.2.jar;
 REGISTER $LIB_DIR/lucene-*.jar;
+REGISTER pig/lib/datafu-*.jar
 
 --%default MIN_COUNT 2
 --%default MAX_VOCAB_SIZE 5000
@@ -8,6 +9,7 @@ REGISTER $LIB_DIR/lucene-*.jar;
 
 DEFINE TokenizeText com.fujitsu.ca.fic.caissepop.evaluation.TokenizeText();
 DEFINE BNS com.fujitsu.ca.fic.caissepop.evaluation.ComputeBns();
+DEFINE ENUMERATE datafu.pig.bags.Enumerate();
 
 -- Load positive and negative documents, tokenize and tag with doc_id (the document name) 
 -- and label (1 for positive, 0 for negative)
@@ -33,7 +35,7 @@ neg_tokens = FILTER neg_tokens BY SIZE(token) > 1L;
 
 -- The vocabulary of the corpus is the union of tokens found in the positive documents
 -- and the ones in the negative documents.
-vocabUnion = UNION pos_tokens, neg_tokens;
+vocab_union = UNION pos_tokens, neg_tokens;
 
 -- count the number of positive and negative documents
 posDocs = FOREACH pos_tokens GENERATE doc_id;
@@ -69,13 +71,27 @@ bnsPipe = FILTER bnsPipe BY (all_count > $MIN_COUNT) OR (bns_score > $MIN_BNS_SC
 bnsPipe = ORDER bnsPipe BY bns_score DESC;
 bnsPipe = LIMIT bnsPipe $MAX_VOCAB_SIZE;
 
+-- Generate an index for each of the words of the final vocabulary. will be used to vectorize 
+-- in the Store UDF.
+all_vocab = FOREACH (GROUP bnsPipe ALL) {
+    all_tokens = DISTINCT bnsPipe.token;
+    GENERATE all_tokens;
+}
+--vocab_size = FOREACH (GROUP all_vocab ALL) GENERATE COUNT(all_tokens) AS size;
+
+tokens_indexed = FOREACH all_vocab GENERATE FLATTEN(ENUMERATE(all_tokens)) as(token, index:long);
+bnsPipe_indexed = JOIN tokens_indexed by token, bnsPipe by token;
+
+
 -- Here we want to group on the doc_id for the last vectorization step
-outPipeJoined = JOIN vocabUnion BY token, bnsPipe BY token;
-outPipe = FOREACH outPipeJoined 
-            GENERATE vocabUnion::doc_id as doc_id, 
-                     vocabUnion::label as label, 
-                     vocabUnion::token as token, 
-                     bnsPipe::bns_score as bns_score;
+outPipe_joined = JOIN vocab_union BY token, bnsPipe_indexed BY tokens_indexed::token;
+
+
+outPipe = FOREACH outPipe_joined 
+            GENERATE vocab_union::doc_id as doc_id, 
+                     vocab_union::label as label, 
+                     index as index,
+                     bns_score as bns_score;
 outPipeGrouped = GROUP outPipe BY (doc_id,label);
 
 outPipeRandom = foreach outPipeGrouped generate *, RANDOM() as random;
@@ -83,9 +99,9 @@ outPipeRandom = order outPipeRandom by random;
 SPLIT outPipeRandom INTO train IF random < 0.6, test OTHERWISE;
 
 rmf $OUTPUT_DIR/bns-vocab
-rmf $OUTPUT_DIR/bns-corpus/test
-rmf $OUTPUT_DIR/bns-corpus/train
+rmf $OUTPUT_DIR/test
+rmf $OUTPUT_DIR/train
 
-STORE bnsPipe INTO '$OUTPUT_DIR/bns-vocab' USING PigStorage(',','schema');
+STORE bnsPipe INTO '$OUTPUT_DIR/bns-vocab' USING PigStorage(';','schema');
 STORE test INTO '$OUTPUT_DIR/test' USING PigStorage(',','schema');
 STORE train INTO '$OUTPUT_DIR/train' USING PigStorage(',','schema');

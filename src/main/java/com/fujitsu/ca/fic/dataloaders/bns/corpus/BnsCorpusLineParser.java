@@ -1,7 +1,5 @@
 package com.fujitsu.ca.fic.dataloaders.bns.corpus;
 
-import java.util.List;
-
 import org.apache.mahout.math.NamedVector;
 import org.apache.mahout.math.SequentialAccessSparseVector;
 import org.apache.mahout.math.Vector;
@@ -14,27 +12,28 @@ import com.fujitsu.ca.fic.exceptions.IncorrectLineFormatException;
 public class BnsCorpusLineParser implements LineParser<Vector> {
     private static Logger LOG = LoggerFactory.getLogger(BnsCorpusLineParser.class);
 
-    private final List<String> tokenIndexList;
+    private final int cardinality;
 
-    public BnsCorpusLineParser(List<String> tokenIndexList) {
-        this.tokenIndexList = tokenIndexList;
+    public BnsCorpusLineParser(int cardinality) {
+        this.cardinality = cardinality;
     }
 
     static int i = 0;
 
     /**
      * Expected format: (DOC_NAME:String,LABEL:int),{(DOC_NAME:String,LABEL:int,TOKEN:String,BNS_SCORE:double),...},RANDOM_NUM:double
+     * 
+     * @return a NamedVector which has the name doc_name,label so we can identify the document as well as know its label for supervised
+     *         training
      */
     @Override
-    public Vector parseFields(String line) throws IncorrectLineFormatException {
+    public Vector parseFields(String line) {
         LOG.debug(i + ": " + line);
 
-        int cardinality = tokenIndexList.size();
         double[] features = new double[cardinality];
 
         // (27677.txt,1),{...
-        String docLabelField = line.substring(line.indexOf('(') + 1, line.indexOf(')'));
-        String label = docLabelField.split(",")[1];
+        String docLabel = line.substring(line.indexOf('(') + 1, line.indexOf(')'));
 
         // 'eat' the field,docid field and start processing fields
         line = line.substring(line.indexOf('{') + 1, line.indexOf('}') + 1);
@@ -46,47 +45,42 @@ public class BnsCorpusLineParser implements LineParser<Vector> {
             String nextFeatureFields = line.substring(start + 1, end);
             try {
                 addFieldToFeatures(nextFeatureFields, features);
-                line = line.substring(end + 2);
             } catch (IncorrectLineFormatException e) {
-                LOG.warn("parseFields: could not parse feature: " + nextFeatureFields + "\n");
-                throw e;
+                LOG.warn("parseFields: could not parse feature: " + nextFeatureFields + "\nError parsing line: " + line);
             }
+            line = line.substring(end + 2);
             i++;
         }
         Vector vector = new SequentialAccessSparseVector(cardinality);
         vector.assign(features);
-        LOG.debug(String.format("Vector: label:%s Fields: %d", label, vector.size()));
+        LOG.debug(String.format("Vector: label:%s Fields: %d", docLabel, vector.size()));
 
-        return new NamedVector(vector, label);
+        return new NamedVector(vector, docLabel);
     }
 
-    // gets DOC.txt, LABEL, TOKEN, BNS_SCORE
-    // tokenized as: doc txt label token bns
+    // gets DOC.txt, LABEL, TOKEN_INDEX, BNS_SCORE
+    // tokenized as: doc txt label token_index bns
+    // The vocabulary and the scoring are done together, the token should ALWAYS be found.
+    // if it is not, the error MUST be in the pig script BNS.PIG.
     private void addFieldToFeatures(String featureField, double[] features) throws IncorrectLineFormatException {
         LOG.debug(featureField);
-        int tokenFieldStart = featureField.indexOf(',', featureField.indexOf(',') + 1) + 1;
-        int tokenFieldEnd = featureField.lastIndexOf(',');
-
-        String token = featureField.substring(tokenFieldStart, tokenFieldEnd);
-        int featureIndex = tokenIndexList.indexOf(token);
-
-        // The vocabulary and the scoring are done together, the token should ALWAYS be found.
-        // if it is not, the error MUST be in the pig script BNS.PIG.
-        if (featureIndex == -1) {
-            String message = "token --" + token + "-- was not found in the vocabulary! Check bns.pig for errors.";
-            LOG.error(message);
-            throw new IncorrectLineFormatException(message);
-        }
-        double bnsScore = 0.0;
-        String bnsScoreField = featureField.substring(tokenFieldEnd + 1);
+        String[] fields = featureField.split(",");
         try {
-            bnsScore = Double.parseDouble(bnsScoreField);
+            int featureIndex = Integer.parseInt(fields[2]);
+
+            if (featureIndex == -1) {
+                String message = "unknown token index. This token is not in the vocabulary! Check bns.pig for errors";
+                LOG.error(message);
+                throw new IncorrectLineFormatException(message);
+            }
+            String bnsScoreField = fields[3];
+            double bnsScore = Double.parseDouble(bnsScoreField);
+            features[featureIndex] = bnsScore;
+            LOG.debug(String.format("processing line: %s %s %d %f", fields[0], fields[0], featureIndex, bnsScore));
         } catch (NumberFormatException nfe) {
-            String message = nfe.toString() + "for field: " + bnsScoreField;
+            String message = nfe.toString();
             LOG.warn(message);
             throw new IncorrectLineFormatException(message);
         }
-        features[featureIndex] = bnsScore;
-        LOG.debug(String.format("%s %d %f", token, featureIndex, features[featureIndex]));
     }
 }
