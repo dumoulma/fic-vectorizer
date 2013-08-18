@@ -1,0 +1,8 @@
+REL_INPUT_DIR=data/sieve/corpus6/tfidf/relevant
+NOTREL_INPUT_DIR=data/sieve/corpus6/tfidf/not-relevant
+SPAM_INPUT_DIR=data/sieve/corpus6/tfidf/spam
+UNLABELED_INPUT_DIR=data/sieve/corpus6/tfidf/unlabeled
+OUTPUT_DIR=data/out/sieve/tfidf
+MIN_TF_COUNT=2
+MIN_DF_COUNT=2
+LIB_DIR=pig/lib
