@@ -31,6 +31,6 @@
     </property>
     <property>
         <name>data.sequence.output.path</name>
-        <value>data/out/sieve/bns/rel-vs-notrel/sequence</value>
+        <value>data/out/sieve/bns/rel-vs-notrel</value>
     </property>
 </configuration>

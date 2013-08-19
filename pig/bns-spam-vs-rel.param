@@ -1,5 +1,5 @@
-POS_INPUT_DIR=data/sieve/corpus6/spam/
-NEG_INPUT_DIR=data/sieve/corpus6/relevant/
+POS_INPUT_DIR=data/sieve/corpus6/relevant/
+NEG_INPUT_DIR=data/sieve/corpus6/spam/
 OUTPUT_DIR=data/out/sieve/bns/spam-vs-rel
 LIB_DIR=pig/lib
 MIN_COUNT=2
