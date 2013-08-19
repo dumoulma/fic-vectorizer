@@ -12,21 +12,21 @@ rel_tokens = FOREACH relevant_docs
                 GENERATE CONCAT('$REL_INPUT_DIR', doc_id) as doc_id:chararray, 
                          0 AS label:int,
                          FLATTEN(TokenizeText(text)) AS token:chararray;                        
-rel_tokens = FILTER rel_tokens BY token MATCHES '\\w.*' AND SIZE(token) > 1L;
+--rel_tokens = FILTER rel_tokens BY token MATCHES '[a-zA-Z_]+';
 
 not_relevant_docs = LOAD '$NOTREL_INPUT_DIR' USING PigStorage('\n','-tagsource') AS (doc_id:chararray, text:chararray);
 not_tokens = FOREACH not_relevant_docs 
                 GENERATE CONCAT('$NOTREL_INPUT_DIR', doc_id) as doc_id:chararray, 
                          1 AS label:int,
                          FLATTEN(TokenizeText(text)) AS token:chararray;
-not_tokens = FILTER not_tokens BY token MATCHES '\\w.*' AND SIZE(token) > 1L;
+--not_tokens = FILTER not_tokens BY token MATCHES '[a-zA-Z_]+';
 
 spam_docs = LOAD '$SPAM_INPUT_DIR' USING PigStorage('\n','-tagsource') AS (doc_id:chararray, text:chararray);
 spam_tokens = FOREACH spam_docs 
                 GENERATE CONCAT('$SPAM_INPUT_DIR', doc_id) as doc_id:chararray, 
                          2 AS label:int,
                          FLATTEN(TokenizeText(text)) AS token:chararray;
-spam_tokens = FILTER spam_tokens BY token MATCHES '\\w.*' AND SIZE(token) > 1L;
+--spam_tokens = FILTER spam_tokens BY token MATCHES '[a-zA-Z_]+';
 
 
 unlabeled_docs = LOAD '$UNLABELED_INPUT_DIR' USING PigStorage('\n','-tagsource') AS (doc_id:chararray, text:chararray);
@@ -34,9 +34,10 @@ unlabeled_tokens = FOREACH unlabeled_docs
                 GENERATE CONCAT('$UNLABELED_INPUT_DIR', doc_id) as doc_id:chararray, 
                          3 AS label:int,
                          FLATTEN(TokenizeText(text)) AS token:chararray;
-unlabeled_tokens = FILTER unlabeled_tokens BY token MATCHES '\\w.*' AND SIZE(token) > 1L;
+--unlabeled_tokens = FILTER unlabeled_tokens BY token '[a-zA-Z_]+';
 
 vocab_union = UNION rel_tokens, not_tokens, spam_tokens, unlabeled_tokens;
+vocab_union = FILTER vocab_union BY token MATCHES '[a-zA-Z_]+';
 
 all_vocab = FOREACH (GROUP vocab_union ALL) {
     all_tokens = DISTINCT vocab_union.token;
@@ -65,6 +66,11 @@ dfPipe = FOREACH tokenGroups {
   dfPipe = distinct vocab_union_indexed.doc_id;
   GENERATE group AS df_token, COUNT(dfPipe) AS df_count;
 }
+
+-- for computing new documents, we will need to keep the document count 
+-- and the document frequency count for each word of the vocabulary
+vocab_dict = JOIN tokens_indexed by token, dfPipe by df_token;
+vocab_dict = FOREACH vocab_dict GENERATE token, index, df_count, dPipe.n_docs as n_docs;
 
 tfidfPipe = JOIN tfPipe BY tf_token, dfPipe BY df_token;
 tfidfPipe = FILTER tfidfPipe BY tf_count > $MIN_TF_COUNT AND df_count > $MIN_DF_COUNT;
@@ -97,12 +103,12 @@ unlabeled = FILTER out_shuffled BY group.label == 0;
 spam_vs_rel = FILTER out_shuffled BY group.label == 0 OR group.label == 2;
 rel_vs_notrel = FILTER out_shuffled BY group.label == 0 OR group.label == 1;
 
-SPLIT out_spam_vs_rel INTO spam_vs_rel_train IF random < 0.6, spam_vs_rel_test OTHERWISE;
-SPLIT out_rel_vs_notrel INTO rel_vs_notrel_train IF random < 0.6, rel_vs_notrel_test OTHERWISE;
+SPLIT spam_vs_rel INTO spam_vs_rel_train IF random < 0.6, spam_vs_rel_test OTHERWISE;
+SPLIT rel_vs_notrel INTO rel_vs_notrel_train IF random < 0.6, rel_vs_notrel_test OTHERWISE;
 
 rmf $OUTPUT_DIR
 
-STORE tokens_indexed INTO '$OUTPUT_DIR/vocab' USING PigStorage(';','schema');
+STORE vocab_dict INTO '$OUTPUT_DIR/vocab' USING PigStorage(';','schema');
 STORE spam_vs_rel_train INTO '$OUTPUT_DIR/spam-vs-rel/train' USING PigStorage(',','schema');
 STORE spam_vs_rel_test INTO '$OUTPUT_DIR/spam-vs-rel/test' USING PigStorage(',','schema');
 STORE rel_vs_notrel_train INTO '$OUTPUT_DIR/rel-vs-notrel/train' USING PigStorage(',','schema');

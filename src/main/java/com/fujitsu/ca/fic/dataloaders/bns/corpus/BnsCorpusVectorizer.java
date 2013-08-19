@@ -22,7 +22,7 @@ public class BnsCorpusVectorizer implements CorpusVectorizer {
     private static Logger LOG = LoggerFactory.getLogger(BnsCorpusVectorizer.class);
 
     @Override
-    public void convertToSequenceFile(Configuration conf, int cardinality, String inputDirName, String outputDirName) throws IOException {
+    public void convertToSequenceFile(Configuration conf, String inputDirName, String outputDirName) throws IOException {
         SequenceFile.Writer writer = null;
         try {
             Path outputPath = new Path(outputDirName);
@@ -30,7 +30,7 @@ public class BnsCorpusVectorizer implements CorpusVectorizer {
 
             writer = SequenceFile.createWriter(FileSystem.get(conf), conf, outputPath, Text.class, VectorWritable.class);
 
-            HdfsCorpusLoader<Vector> hdfsLoader = BnsCorpusFactory.createHdfsCorpusLoader(conf, inputDirName, cardinality);
+            HdfsCorpusLoader<Vector> hdfsLoader = BnsCorpusFactory.createHdfsCorpusLoader(conf, inputDirName);
             long index = 0L;
             for (Vector nextVectorizedDocument : hdfsLoader) {
                 LOG.debug("Read " + index++ + "th vectorized document");

@@ -49,9 +49,9 @@ public class BnsCorpusVectorizationDriver extends Configured implements Tool {
 
         CorpusVectorizer corpus = new BnsCorpusVectorizer();
         LOG.info("Vectorizing train documents...");
-        corpus.convertToSequenceFile(conf, vocabCardinality, trainDir, outputFilename + "/train.seq");
+        corpus.convertToSequenceFile(conf, trainDir, outputFilename + "/train.seq");
         LOG.info("Vectorizing test documents...");
-        corpus.convertToSequenceFile(conf, vocabCardinality, testDir, outputFilename + "/test.seq");
+        corpus.convertToSequenceFile(conf, testDir, outputFilename + "/test.seq");
         LOG.info("BNS Vectorization successful!");
         return Job.SUCCESS;
     }

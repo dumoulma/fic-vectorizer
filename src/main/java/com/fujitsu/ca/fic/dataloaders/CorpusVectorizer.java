@@ -15,5 +15,5 @@ import org.apache.hadoop.conf.Configuration;
  * 
  */
 public interface CorpusVectorizer {
-    void convertToSequenceFile(Configuration conf, int cardinality, String inputDirName, String outputDirName) throws IOException;
+    void convertToSequenceFile(Configuration conf, String inputDirName, String outputDirName) throws IOException;
 }

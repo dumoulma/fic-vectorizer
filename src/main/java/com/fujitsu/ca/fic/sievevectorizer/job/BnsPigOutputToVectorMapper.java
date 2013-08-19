@@ -17,8 +17,7 @@ public class BnsPigOutputToVectorMapper extends Mapper<LongWritable, Text, LongW
     private static Logger LOG = LoggerFactory.getLogger(BnsPigOutputToVectorMapper.class);
 
     private static final LongWritable ONE = new LongWritable(1L);
-    private static final int DEFAULT_CARDINALITY = 5000;
-    private LineParser<Vector> parser;
+    private final LineParser<Vector> parser;
 
     @Override
     protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
@@ -29,15 +28,9 @@ public class BnsPigOutputToVectorMapper extends Mapper<LongWritable, Text, LongW
         context.write(ONE, new VectorWritable(nextVectorizedDocument));
     }
 
-    @Override
-    protected void setup(Context context) throws IOException, InterruptedException {
-        super.setup(context);
-        int cardinality = context.getConfiguration().getInt("bns.cardinality", DEFAULT_CARDINALITY);
-        parser = new BnsCorpusLineParser(cardinality);
-    }
-
     BnsPigOutputToVectorMapper() {
         super();
+        parser = new BnsCorpusLineParser();
     }
 
     // NOTE: For testing purposes only!!

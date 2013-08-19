@@ -1,7 +1,7 @@
 REGISTER $LIB_DIR/caissepop-1.2.jar;
 REGISTER $LIB_DIR/commons-math3-3.2.jar;
 REGISTER $LIB_DIR/lucene-*.jar;
-REGISTER pig/lib/datafu-*.jar
+REGISTER $LIB_DIR/datafu-*.jar
 
 --%default MIN_COUNT 2
 --%default MAX_VOCAB_SIZE 5000
@@ -18,11 +18,9 @@ positive_docs    = LOAD '$POS_INPUT_DIR' USING PigStorage('\n','-tagsource')
 
 pos_tokens = FOREACH positive_docs 
                 GENERATE CONCAT('$POS_INPUT_DIR', doc_id) as doc_id:chararray, 
-                         1 AS label:long,
+                         1 AS label:int,
                          FLATTEN(TokenizeText(text)) AS token:chararray;
-
-pos_tokens = FILTER pos_tokens BY token MATCHES '\\w.*';
-pos_tokens = FILTER pos_tokens BY SIZE(token) > 1L;
+pos_tokens = FILTER pos_tokens BY token MATCHES '\\w.+';
 pos_tokens = DISTINCT pos_tokens;
     
 
@@ -31,16 +29,15 @@ negative_docs = LOAD '$NEG_INPUT_DIR' USING PigStorage('\n','-tagsource')
 
 neg_tokens = FOREACH negative_docs 
                 GENERATE CONCAT('$NEG_INPUT_DIR', doc_id) as doc_id:chararray, 
-                         0 AS label:long,
+                         0 AS label:int,
                          FLATTEN(TokenizeText(text)) AS token:chararray;
-
-neg_tokens = FILTER neg_tokens BY token MATCHES '\\w.*';
-neg_tokens = FILTER neg_tokens BY SIZE(token) > 1L;
+neg_tokens = FILTER neg_tokens BY token MATCHES '\\w.+';
 neg_tokens = DISTINCT neg_tokens;
 
 -- The vocabulary of the corpus is the union of tokens found in the positive documents
 -- and the ones in the negative documents.
 vocab_union = UNION pos_tokens, neg_tokens;
+--vocab_union = FILTER vocab_union BY token MATCHES '[a-zA-Z_]+';
 
 -- count the number of positive and negative documents
 posDocs = FOREACH pos_tokens GENERATE doc_id;
@@ -72,7 +69,7 @@ bnsPipe = FOREACH posNegGrouped {
           }
 
 -- Filters, by token frequency and BNS value and vocabulary size          
-bnsPipe = FILTER bnsPipe BY (all_count > $MIN_COUNT) OR (bns_score > $MIN_BNS_SCORE);
+bnsPipe = FILTER bnsPipe BY (all_count > $MIN_COUNT) AND (bns_score > $MIN_BNS_SCORE);
 bnsPipe = ORDER bnsPipe BY bns_score DESC;
 bnsPipe = LIMIT bnsPipe $MAX_VOCAB_SIZE;
 
@@ -82,26 +79,32 @@ all_vocab = FOREACH (GROUP bnsPipe ALL) {
     all_tokens = DISTINCT bnsPipe.token;
     GENERATE all_tokens;
 }
---vocab_size = FOREACH (GROUP all_vocab ALL) GENERATE COUNT(all_tokens) AS size;
+vocab_size = FOREACH all_vocab GENERATE COUNT(all_tokens) AS cardinality;
 
+-- We need to set an index to each token so we can know the mapping from vector index to token
 tokens_indexed = FOREACH all_vocab GENERATE FLATTEN(ENUMERATE(all_tokens)) as(token, index:long);
 bnsPipe_indexed = JOIN tokens_indexed by token, bnsPipe by token;
 
-
--- Here we want to group on the doc_id for the last vectorization step
 outPipe_joined = JOIN vocab_union BY token, bnsPipe_indexed BY tokens_indexed::token;
 
-
+-- Keep only the fields we care about for the output
 outPipe = FOREACH outPipe_joined 
             GENERATE vocab_union::doc_id as doc_id, 
                      vocab_union::label as label, 
                      index as index,
                      bns_score as bns_score;
-outPipeGrouped = GROUP outPipe BY (doc_id,label);
+out_grouped = GROUP outPipe BY (doc_id,label);
 
-outPipeRandom = foreach outPipeGrouped generate *, RANDOM() as random;
-outPipeRandom = order outPipeRandom by random;
-SPLIT outPipeRandom INTO train IF random < 0.6, test OTHERWISE;
+-- I'm cleaning up the output so we only have a bag of tuples index,score left
+out_cleaned = FOREACH out_grouped {                                    
+        entries = FOREACH outPipe generate (int)index as index:int, bns_score as value:double;                     
+        GENERATE group as docid, TOTUPLE(vocab_size.cardinality, entries) as val;
+        }
+        
+-- Randomly shuffle the examples and split them into train and test sets
+out_random = FOREACH out_cleaned GENERATE *, RANDOM() as random;
+out_random_ordered = ORDER out_random BY random;
+SPLIT out_random_ordered INTO train IF random < 0.6, test OTHERWISE;
 
 rmf $OUTPUT_DIR/bns-vocab
 rmf $OUTPUT_DIR/test

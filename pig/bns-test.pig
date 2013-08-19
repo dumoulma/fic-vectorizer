@@ -13,31 +13,32 @@ DEFINE ENUMERATE datafu.pig.bags.Enumerate();
 
 -- Load positive and negative documents, tokenize and tag with doc_id (the document name) 
 -- and label (1 for positive, 0 for negative)
-positive_docs    = LOAD 'data/test/sieve/pos' USING PigStorage('\n','-tagsource') 
+positive_docs    = LOAD 'data/sieve/corpus6/relevant' USING PigStorage('\n','-tagsource') 
                      AS (doc_id:chararray, text:chararray);
 
 pos_tokens = FOREACH positive_docs 
-                GENERATE doc_id, 
-                         1 AS label:long,
+                GENERATE CONCAT('data/sieve/corpus6/relevant', doc_id) as doc_id:chararray, 
+                         1 AS label:int,
                          FLATTEN(TokenizeText(text)) AS token:chararray;
-    
-pos_tokens = FILTER pos_tokens BY token MATCHES '\\w.*';
-pos_tokens = FILTER pos_tokens BY SIZE(token) > 1L;
+pos_tokens = FILTER pos_tokens BY token MATCHES '[a-zA-Z_]+';
 pos_tokens = DISTINCT pos_tokens;
+    
 
-negative_docs = LOAD 'data/test/sieve/neg' USING PigStorage('\n','-tagsource') 
+negative_docs = LOAD 'data/sieve/corpus6/spam' USING PigStorage('\n','-tagsource') 
                      AS (doc_id:chararray, text:chararray);
+
 neg_tokens = FOREACH negative_docs 
-                GENERATE doc_id, 
-                         0 AS label:long,
+                GENERATE CONCAT('data/sieve/corpus6/spam', doc_id) as doc_id:chararray, 
+                         0 AS label:int,
                          FLATTEN(TokenizeText(text)) AS token:chararray;
-neg_tokens = FILTER neg_tokens BY token MATCHES '\\w.*';
-neg_tokens = FILTER neg_tokens BY SIZE(token) > 1L;
+neg_tokens = FILTER neg_tokens BY token MATCHES '[a-zA-Z_]+';
 neg_tokens = DISTINCT neg_tokens;
 
 -- The vocabulary of the corpus is the union of tokens found in the positive documents
 -- and the ones in the negative documents.
 vocab_union = UNION pos_tokens, neg_tokens;
+--vocab_union = FILTER vocab_union BY token MATCHES '[a-zA-Z_]+';
+
 -- count the number of positive and negative documents
 posDocs = FOREACH pos_tokens GENERATE doc_id;
 posDocs = DISTINCT posDocs;
@@ -56,7 +57,7 @@ posNegGrouped = COGROUP pos_tokens BY token, neg_tokens BY token;
 -- for each token, get the count of positive documents and negative documents where the token is used
 -- combined with the count of positive and negative documents, we can compute the bns score of the token
 -- its easy to get the total count of the token as well, so we compute it here too.
-bnsPipe = FOREACH posNegGrouped {
+bnsPipe2 = FOREACH posNegGrouped {
             pos_tokens = pos_tokens.token;
             neg_tokens = neg_tokens.token;
             tp = COUNT(pos_tokens);
@@ -68,9 +69,9 @@ bnsPipe = FOREACH posNegGrouped {
           }
 
 -- Filters, by token frequency and BNS value and vocabulary size          
-bnsPipe = FILTER bnsPipe BY (all_count > 1) OR (bns_score > 0.1);
-bnsPipe = ORDER bnsPipe BY bns_score DESC;
---bnsPipe = LIMIT bnsPipe $MAX_VOCAB_SIZE;
+bnsPipe_filtered = FILTER bnsPipe2 BY (all_count > 2) AND (bns_score > 0.1);
+bnsPipe_ordered = ORDER bnsPipe_filtered BY bns_score DESC;
+bnsPipe = LIMIT bnsPipe_ordered 5000;
 
 -- Generate an index for each of the words of the final vocabulary. will be used to vectorize 
 -- in the Store UDF.
@@ -78,16 +79,29 @@ all_vocab = FOREACH (GROUP bnsPipe ALL) {
     all_tokens = DISTINCT bnsPipe.token;
     GENERATE all_tokens;
 }
+vocab_size = FOREACH all_vocab GENERATE COUNT(all_tokens) AS cardinality;
+
+-- We need to set an index to each token so we can know the mapping from vector index to token
 tokens_indexed = FOREACH all_vocab GENERATE FLATTEN(ENUMERATE(all_tokens)) as(token, index:long);
 bnsPipe_indexed = JOIN tokens_indexed by token, bnsPipe by token;
 
--- Here we want to group on the doc_id for the last vectorization step
 outPipe_joined = JOIN vocab_union BY token, bnsPipe_indexed BY tokens_indexed::token;
 
+-- Keep only the fields we care about for the output
 outPipe = FOREACH outPipe_joined 
             GENERATE vocab_union::doc_id as doc_id, 
                      vocab_union::label as label, 
                      index as index,
                      bns_score as bns_score;
-outPipeGrouped = GROUP outPipe BY (doc_id,label);
+out_grouped = GROUP outPipe BY (doc_id,label);
 
+-- I'm cleaning up the output so we only have a bag of tuples index,score left
+out_cleaned = FOREACH out_grouped {                                    
+        entries = FOREACH outPipe generate (int)index as index:int, bns_score as value:double;                     
+        GENERATE group as docid, TOTUPLE(vocab_size.cardinality, entries) as val;
+        }
+        
+-- Randomly shuffle the examples and split them into train and test sets
+out_random = FOREACH out_cleaned GENERATE *, RANDOM() as random;
+out_random_ordered = ORDER out_random BY random;
+SPLIT out_random_ordered INTO train IF random < 0.6, test OTHERWISE;

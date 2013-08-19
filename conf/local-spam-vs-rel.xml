@@ -19,18 +19,18 @@
 	</property>
 	<property>
 		<name>data.vocab.path</name>
-		<value>data/out/bns-corpus/spam-vs-rel/bns-vocab/</value>
+		<value>data/out/sieve/bns/spam-vs-rel/bns-vocab/</value>
 	</property>
 	<property>
 		<name>data.corpus.train.path</name>
-		<value>data/out/bns-corpus/spam-vs-rel/train/</value>
+		<value>data/out/sieve/bns/spam-vs-rel/train/</value>
 	</property>
     <property>
         <name>data.corpus.test.path</name>
-        <value>data/out/bns-corpus/spam-vs-rel/test/</value>
+        <value>data/out/sieve/bns/spam-vs-rel/test/</value>
     </property>
 	<property>
 		<name>data.sequence.output.path</name>
-		<value>data/out/bns-corpus/spam-vs-rel</value>
+		<value>data/out/sieve/bns/spam-vs-rel</value>
 	</property>
 </configuration>

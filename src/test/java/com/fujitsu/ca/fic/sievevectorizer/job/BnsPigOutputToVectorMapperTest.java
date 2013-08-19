@@ -2,7 +2,6 @@ package com.fujitsu.ca.fic.sievevectorizer.job;
 
 import java.io.IOException;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -26,12 +25,12 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BnsPigOutputToVectorMapperTest {
-    private static final int CARDINALITY = 4999;
+    private static final int CARDINALITY = 3672;
 
-    private static final String docLabel = "data/sieve/corpus6/spam/39135.txt.gz,1";
-    private static final String correctLine = "(" + docLabel + ")," + "{(data/sieve/corpus6/spam/39135.txt.gz,1,3488,1.30227),"
-            + "(data/sieve/corpus6/spam/39135.txt.gz,1,4417,2.51266),"
-            + "(data/sieve/corpus6/spam/39135.txt.gz,1,4418,2.60221)},0.613646770332099";
+    private static final String DOC_LABEL = "data/sieve/corpus6/spam/39135.txt.gz,1";
+    // (data/sieve/corpus6/spam/39252.txt.gz,1),(3672,{(480,0.38624),(1474,0.03848),(570,0.74978),(3281,1.11081)
+    private static final String correctLine = "(" + DOC_LABEL + "),(" + CARDINALITY
+            + ",{(480,0.38624),(1474,0.03848),(570,0.74978),(3281,1.11081)},0.613646770332099";
 
     private static final LongWritable ONE = new LongWritable(1);
 
@@ -44,12 +43,13 @@ public class BnsPigOutputToVectorMapperTest {
 
     private NamedVector createExpectedNamedVector() {
         double[] values = new double[CARDINALITY];
-        values[3488] = 1.30227;
-        values[4417] = 2.51266;
-        values[4418] = 2.60221;
+        values[480] = 0.38624;
+        values[1474] = 0.03848;
+        values[570] = 0.74978;
+        values[3281] = 1.11081;
         Vector delegate = new SequentialAccessSparseVector(CARDINALITY);
         delegate.assign(values);
-        return new NamedVector(delegate, docLabel);
+        return new NamedVector(delegate, DOC_LABEL);
     }
 
     @BeforeClass
@@ -60,10 +60,6 @@ public class BnsPigOutputToVectorMapperTest {
     public void setUp() throws Exception {
         BnsPigOutputToVectorMapper mapper = new BnsPigOutputToVectorMapper(bnsCorpusLineParser);
         mapDriver = MapDriver.newMapDriver(mapper);
-
-        Configuration conf = new Configuration();
-        conf.setInt("bns.cardinality", CARDINALITY);
-        mapDriver.setConfiguration(conf);
     }
 
     @Test
