@@ -2,3 +2,5 @@
 *.log
 *.crc
 dependency-reduced-pom.xml
+/.settings
+.classpath
