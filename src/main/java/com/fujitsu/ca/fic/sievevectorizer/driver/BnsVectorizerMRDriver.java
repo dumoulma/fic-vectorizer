@@ -33,12 +33,13 @@ public class BnsVectorizerMRDriver extends Configured implements Tool {
     public int run(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
         Configuration conf = getConf();
 
-        String trainDir = "data/out/sieve/bns/spam-vs-rel/train";
-        String testDir = "data/out/sieve/bns/spam-vs-rel/test";
-        String outputFilename = "data/out/sieve/bns/spam-vs-rel/";
-        // String trainDir = conf.get("data.corpus.train.path");
-        // String testDir = conf.get("data.corpus.test.path");
-        // String outputFilename = conf.get("data.sequence.output.path");
+        // To make it easier for testing on local, we can avoid the conf file by uncommentings the lines here.
+        // String trainDir = "data/out/sieve/bns/spam-vs-rel/train";
+        // String testDir = "data/out/sieve/bns/spam-vs-rel/test";
+        // String outputFilename = "data/out/sieve/bns/spam-vs-rel/";
+        String trainDir = conf.get("data.corpus.train.path");
+        String testDir = conf.get("data.corpus.test.path");
+        String outputFilename = conf.get("data.sequence.output.path");
 
         if (trainDir == null | testDir == null | outputFilename == null) {
             LOG.error("The configuration file was not loaded correctly! Please check: \n" + "data.corpus.train.path \n"
