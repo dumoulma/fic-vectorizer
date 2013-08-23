@@ -22,7 +22,8 @@ import com.fujitsu.ca.fic.sievevectorizer.job.BnsPigOutputToVectorMapper;
 import com.fujitsu.ca.fic.sievevectorizer.job.VectorToSequenceReducer;
 
 public class BnsVectorizerMRDriver extends Configured implements Tool {
-    private static Logger LOG = LoggerFactory.getLogger(BnsCorpusVectorizationDriver.class);
+    private static Logger log = LoggerFactory
+            .getLogger(BnsCorpusVectorizationDriver.class);
 
     public static void main(String[] args) throws Exception {
         int exitCode = ToolRunner.run(new BnsVectorizerMRDriver(), args);
@@ -30,21 +31,21 @@ public class BnsVectorizerMRDriver extends Configured implements Tool {
     }
 
     @Override
-    public int run(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
+    public int run(String[] args) throws IOException, InterruptedException,
+            ClassNotFoundException {
         Configuration conf = getConf();
 
-        // To make it easier for testing on local, we can avoid the conf file by uncommentings the lines here.
-        // String trainDir = "data/out/sieve/bns/spam-vs-rel/train";
-        // String testDir = "data/out/sieve/bns/spam-vs-rel/test";
-        // String outputFilename = "data/out/sieve/bns/spam-vs-rel/";
-        String trainDir = conf.get("data.corpus.train.path");
-        String testDir = conf.get("data.corpus.test.path");
-        String outputFilename = conf.get("data.sequence.output.path");
+        String trainDir = "data/out/sieve/bns/spam-vs-rel/train";
+        String testDir = "data/out/sieve/bns/spam-vs-rel/test";
+        String outputFilename = "data/out/sieve/bns/spam-vs-rel/";
 
         if (trainDir == null | testDir == null | outputFilename == null) {
-            LOG.error("The configuration file was not loaded correctly! Please check: \n" + "data.corpus.train.path \n"
-                    + "data.corpus.test.path \n" + "data.sequence.output.path \n");
-            throw new IOException("The expected configuration values for data paths have not been found.");
+            log.error("The configuration file was not loaded correctly! Please check: \n"
+                    + "data.corpus.train.path \n"
+                    + "data.corpus.test.path \n"
+                    + "data.sequence.output.path \n");
+            throw new IOException(
+                    "The expected configuration values for data paths have not been found.");
         }
 
         Path trainInput = new Path(trainDir);
@@ -52,18 +53,21 @@ public class BnsVectorizerMRDriver extends Configured implements Tool {
         Path trainOutput = new Path(outputFilename + "/train-seq");
         Path testOutput = new Path(outputFilename + "/test-seq");
 
-        boolean testJobExitCode = vectorizeCorpus(conf, "BNS Vectorize train", trainInput, trainOutput);
-        boolean trainJobExitCode = vectorizeCorpus(conf, "BNS Vectorize test", testInput, testOutput);
+        boolean testJobExitCode = vectorizeCorpus(conf, "BNS Vectorize train",
+                trainInput, trainOutput);
+        boolean trainJobExitCode = vectorizeCorpus(conf, "BNS Vectorize test",
+                testInput, testOutput);
 
         int exitCode = testJobExitCode && trainJobExitCode ? 1 : 0;
         if (exitCode == 1) {
-            LOG.info("Jobs Completed successfully!");
+            log.info("Jobs Completed successfully!");
         }
 
         return exitCode;
     }
 
-    private boolean vectorizeCorpus(Configuration conf, String jobName, Path input, Path output) throws IOException, InterruptedException,
+    private boolean vectorizeCorpus(Configuration conf, String jobName,
+            Path input, Path output) throws IOException, InterruptedException,
             ClassNotFoundException {
         HadoopUtil.delete(conf, output);
 

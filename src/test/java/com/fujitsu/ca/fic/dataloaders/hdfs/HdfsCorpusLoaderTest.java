@@ -19,21 +19,24 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class HdfsCorpusLoaderTest {
-    static Configuration realConf = new Configuration();
+    private static Configuration realConf = new Configuration();
 
     @Mock
-    LineParser<Vector> lineParser;
+    private LineParser<Vector> lineParser;
 
     @Test
-    public void createIteratorDoesntThrowExceptionForValidPath() throws IOException {
+    public void createIteratorDoesntThrowExceptionForValidPath()
+            throws IOException {
         new HdfsCorpusLoader<Vector>(realConf, "data/bns-corpus", lineParser);
     }
 
     @Test
-    public void iteratorOnOneFileIteratesCorrectNumberOfTimes() throws IOException {
+    public void iteratorOnOneFileIteratesCorrectNumberOfTimes()
+            throws IOException {
         Path inputPath = new Path("data/test/bns-corpus/one-file-3lines");
 
-        Iterable<Vector> it = new HdfsCorpusLoader<Vector>(realConf, inputPath.toString(), lineParser);
+        Iterable<Vector> it = new HdfsCorpusLoader<Vector>(realConf,
+                inputPath.toString(), lineParser);
 
         assertThat(it, IsIterableWithSize.<Vector> iterableWithSize(equalTo(3)));
     }
@@ -42,25 +45,30 @@ public class HdfsCorpusLoaderTest {
     public void iteratorOnOneLargeFilesIteratesToTheEnd() throws IOException {
         Path inputPath = new Path("data/test/bns-corpus");
 
-        Iterable<Vector> it = new HdfsCorpusLoader<Vector>(realConf, inputPath.toString(), lineParser);
+        Iterable<Vector> it = new HdfsCorpusLoader<Vector>(realConf,
+                inputPath.toString(), lineParser);
 
         assertThat(it, IsIterableWithSize.<Vector> iterableWithSize(599));
     }
 
     @Test
-    public void iteratorOnTwoFilesIteratesCorrectNumberOfTimes() throws IOException {
+    public void iteratorOnTwoFilesIteratesCorrectNumberOfTimes()
+            throws IOException {
         Path inputPath = new Path("data/test/bns-corpus/two-files-6lines");
 
-        Iterable<Vector> it = new HdfsCorpusLoader<Vector>(realConf, inputPath.toString(), lineParser);
+        Iterable<Vector> it = new HdfsCorpusLoader<Vector>(realConf,
+                inputPath.toString(), lineParser);
 
         assertThat(it, IsIterableWithSize.<Vector> iterableWithSize(6));
     }
 
     @Test
-    public void iteratorOnThreeFilesIteratesCorrectNumberOfTimes() throws IOException {
+    public void iteratorOnThreeFilesIteratesCorrectNumberOfTimes()
+            throws IOException {
         Path inputPath = new Path("data/test/bns-corpus/three-files-9lines");
 
-        Iterable<Vector> it = new HdfsCorpusLoader<Vector>(realConf, inputPath.toString(), lineParser);
+        Iterable<Vector> it = new HdfsCorpusLoader<Vector>(realConf,
+                inputPath.toString(), lineParser);
 
         assertThat(it, IsIterableWithSize.<Vector> iterableWithSize(9));
     }

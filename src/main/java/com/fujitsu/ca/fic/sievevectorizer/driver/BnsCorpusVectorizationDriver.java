@@ -20,7 +20,7 @@ import com.fujitsu.ca.fic.dataloaders.bns.vocab.BnsVocabularyLoader;
  * classes, each in its own folder, and using an existing dictionary of BNS term
  */
 public class BnsCorpusVectorizationDriver extends Configured implements Tool {
-    private static Logger LOG = LoggerFactory.getLogger(BnsCorpusVectorizationDriver.class);
+    private static Logger log = LoggerFactory.getLogger(BnsCorpusVectorizationDriver.class);
 
     public static void main(String[] args) throws Exception {
         int exitCode = ToolRunner.run(new BnsCorpusVectorizationDriver(), args);
@@ -37,22 +37,22 @@ public class BnsCorpusVectorizationDriver extends Configured implements Tool {
         String outputFilename = "data/out/bns-corpus/spam-vs-rel/"; // conf.get("data.sequence.output.path");
 
         if (vocabDir == null | trainDir == null | testDir == null | outputFilename == null) {
-            LOG.error("The configuration file was not loaded correctly! Please check: \n" + "data.vocab.path \n"
+            log.error("The configuration file was not loaded correctly! Please check: \n" + "data.vocab.path \n"
                     + "data.corpus.train.path \n" + "data.corpus.test.path \n" + "data.sequence.output.path \n");
             throw new IllegalStateException("The expected configuration values for data paths have not been found.");
         }
 
-        LOG.info("Loading vocabulary from path: " + vocabDir);
+        log.info("Loading vocabulary from path: " + vocabDir);
         List<String> tokenIndexList = new BnsVocabularyLoader().loadFromText(conf, vocabDir);
         int vocabCardinality = tokenIndexList.size();
-        LOG.info("The vocab file has been loaded successfully with " + vocabCardinality + " entries.");
+        log.info("The vocab file has been loaded successfully with " + vocabCardinality + " entries.");
 
         CorpusVectorizer corpus = new BnsCorpusVectorizer();
-        LOG.info("Vectorizing train documents...");
+        log.info("Vectorizing train documents...");
         corpus.convertToSequenceFile(conf, trainDir, outputFilename + "/train.seq");
-        LOG.info("Vectorizing test documents...");
+        log.info("Vectorizing test documents...");
         corpus.convertToSequenceFile(conf, testDir, outputFilename + "/test.seq");
-        LOG.info("BNS Vectorization successful!");
+        log.info("BNS Vectorization successful!");
         return Job.SUCCESS;
     }
 }

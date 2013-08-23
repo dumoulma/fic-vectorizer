@@ -26,10 +26,12 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class BnsPigOutputToVectorMapperTest {
     private static final int CARDINALITY = 3672;
-
     private static final String DOC_LABEL = "data/sieve/corpus6/spam/39135.txt.gz,1";
     // (data/sieve/corpus6/spam/39252.txt.gz,1),(3672,{(480,0.38624),(1474,0.03848),(570,0.74978),(3281,1.11081)
-    private static final String correctLine = "(" + DOC_LABEL + "),(" + CARDINALITY
+    private static final String SAMPLE_LINE = "("
+            + DOC_LABEL
+            + "),("
+            + CARDINALITY
             + ",{(480,0.38624),(1474,0.03848),(570,0.74978),(3281,1.11081)},0.613646770332099";
 
     private static final LongWritable ONE = new LongWritable(1);
@@ -58,7 +60,8 @@ public class BnsPigOutputToVectorMapperTest {
 
     @Before
     public void setUp() throws Exception {
-        BnsPigOutputToVectorMapper mapper = new BnsPigOutputToVectorMapper(bnsCorpusLineParser);
+        BnsPigOutputToVectorMapper mapper = new BnsPigOutputToVectorMapper(
+                bnsCorpusLineParser);
         mapDriver = MapDriver.newMapDriver(mapper);
     }
 
@@ -67,7 +70,7 @@ public class BnsPigOutputToVectorMapperTest {
         NamedVector expected = createExpectedNamedVector();
         when(bnsCorpusLineParser.parseFields(anyString())).thenReturn(expected);
 
-        mapDriver.withInput(ONE, new Text(correctLine));
+        mapDriver.withInput(ONE, new Text(SAMPLE_LINE));
         mapDriver.withOutput(ONE, new VectorWritable(expected));
         mapDriver.runTest();
     }

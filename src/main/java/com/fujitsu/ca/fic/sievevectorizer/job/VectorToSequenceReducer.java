@@ -10,21 +10,29 @@ import org.apache.mahout.math.VectorWritable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VectorToSequenceReducer extends Reducer<LongWritable, VectorWritable, Text, VectorWritable> {
-    private static Logger LOG = LoggerFactory.getLogger(BnsPigOutputToVectorMapper.class);
-    static int index = 0;
+public class VectorToSequenceReducer extends
+        Reducer<LongWritable, VectorWritable, Text, VectorWritable> {
+    private static Logger log = LoggerFactory
+            .getLogger(BnsPigOutputToVectorMapper.class);
+    private static int vectorCount;
 
     @Override
-    protected void reduce(LongWritable id, Iterable<VectorWritable> vectors, Context context) throws IOException, InterruptedException {
+    protected void reduce(LongWritable id, Iterable<VectorWritable> vectors,
+            Context context) throws IOException, InterruptedException {
         for (VectorWritable nextVectorWritable : vectors) {
-            NamedVector nextVectorizedDocument = (NamedVector) nextVectorWritable.get();
+            NamedVector nextVectorizedDocument = (NamedVector) nextVectorWritable
+                    .get();
             String docLabel = nextVectorizedDocument.getName();
             String[] parts = docLabel.split(",");
             String docName = parts[0];
             String label = parts[1];
 
-            LOG.debug("Writing out " + index++ + "th vector of doc: " + docName);
-            context.write(new Text(docName), new VectorWritable(new NamedVector(nextVectorizedDocument.getDelegate(), label)));
+            log.debug("Writing out " + vectorCount + "th vector of doc: "
+                    + docName);
+            context.write(
+                    new Text(docName),
+                    new VectorWritable(new NamedVector(nextVectorizedDocument
+                            .getDelegate(), label)));
         }
     }
 }

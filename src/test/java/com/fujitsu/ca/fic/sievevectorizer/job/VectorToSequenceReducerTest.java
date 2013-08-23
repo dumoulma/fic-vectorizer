@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class VectorToSequenceReducerTest {
     private static final int CARDINALITY = 4995;
-    private static final String docLabel = "data/sieve/corpus6/spam/39135.txt.gz,1";
+    private static final String DOCUMENT_LABEL = "data/sieve/corpus6/spam/39135.txt.gz,1";
     private static final LongWritable ONE = new LongWritable(1);
 
     @Mock
@@ -43,11 +43,11 @@ public class VectorToSequenceReducerTest {
     private Configuration conf;
 
     private ReduceDriver<LongWritable, VectorWritable, Text, VectorWritable> reduceDriver;
-    private static List<VectorWritable> OneExampleVectors = Lists.newArrayList();
+    private static List<VectorWritable> vectorWritables = Lists.newArrayList();
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        OneExampleVectors.add(new VectorWritable(createExpectedNamedVector()));
+        vectorWritables.add(new VectorWritable(createExpectedNamedVector()));
     }
 
     @Before
@@ -66,21 +66,23 @@ public class VectorToSequenceReducerTest {
         values[4418] = 2.60221;
         Vector delegate = new SequentialAccessSparseVector(CARDINALITY);
         delegate.assign(values);
-        return new NamedVector(delegate, docLabel);
+        return new NamedVector(delegate, DOCUMENT_LABEL);
     }
 
     @Test
-    public void givenOneVectorshouldCallContextWriteOnce() throws IOException, InterruptedException {
+    public void givenOneVectorshouldCallContextWriteOnce() throws IOException,
+            InterruptedException {
         VectorToSequenceReducer reducer = new VectorToSequenceReducer();
-        reducer.reduce(ONE, OneExampleVectors, context);
+        reducer.reduce(ONE, vectorWritables, context);
 
         verify(context).write(any(Text.class), any(VectorWritable.class));
     }
 
     @Test
-    public void shouldOutputTheExpectedConfidenceScoreForEachInputVector() throws IOException {
+    public void shouldOutputTheExpectedConfidenceScoreForEachInputVector()
+            throws IOException {
         reduceDriver.withInputKey(ONE);
-        reduceDriver.withInputValues(OneExampleVectors);
+        reduceDriver.withInputValues(vectorWritables);
 
         List<Pair<Text, VectorWritable>> outputs = reduceDriver.run();
         assertThat(outputs.size(), is(1));

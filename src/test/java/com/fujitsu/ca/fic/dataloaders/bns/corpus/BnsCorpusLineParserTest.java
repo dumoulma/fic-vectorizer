@@ -12,11 +12,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 public class BnsCorpusLineParserTest {
-    private static int CARDINALITY = 5;
-    private static String correctLine1 = "(27677.txt,0),(" + CARDINALITY + ",{(0,0.28095),(1,0.22829),(3,1.98149)}),0.919287341982";
-    private static String correctLineWithUnkToken = "(27677.txt,0),(" + CARDINALITY
+    private static final int CARDINALITY = 5;
+    private static String correctLine1 = "(27677.txt,0),(" + CARDINALITY
+            + ",{(0,0.28095),(1,0.22829),(3,1.98149)}),0.919287341982";
+    private static String correctLineWithUnkToken = "(27677.txt,0),("
+            + CARDINALITY
             + ",{(-1,0.28095),(1,0.22829),(3,1.98149)}),0.919287341982";
-    // private final List<String> tokenIndexList = Lists.newArrayList("blue", "green", "red", "yellow", "orange");
+    // private final List<String> tokenIndexList = Lists.newArrayList("blue",
+    // "green", "red", "yellow", "orange");
     private final BnsCorpusLineParser bnsLineParser = new BnsCorpusLineParser();
 
     @Before
@@ -29,7 +32,8 @@ public class BnsCorpusLineParserTest {
     }
 
     @Test
-    public void parseALineWithAnUnknownTokenShouldIgnoreField() throws IncorrectLineFormatException {
+    public void parseALineWithAnUnknownTokenShouldIgnoreField()
+            throws IncorrectLineFormatException {
         Vector vector = bnsLineParser.parseFields(correctLineWithUnkToken);
         assertThat(vector.size(), equalTo(CARDINALITY));
         assertThat(vector.get(1), equalTo(0.22829));
@@ -37,7 +41,8 @@ public class BnsCorpusLineParserTest {
     }
 
     @Ignore
-    public void parseACorrectLineReturnsVectorWithCorrectSizeAndValues() throws IncorrectLineFormatException {
+    public void parseACorrectLineReturnsVectorWithCorrectSizeAndValues()
+            throws IncorrectLineFormatException {
         Vector vector = bnsLineParser.parseFields(correctLine1);
         assertThat(vector.size(), equalTo(CARDINALITY));
         assertThat(vector.get(0), equalTo(0.28095));

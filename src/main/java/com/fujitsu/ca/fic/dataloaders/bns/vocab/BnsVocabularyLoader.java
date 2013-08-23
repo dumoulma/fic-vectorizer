@@ -18,8 +18,8 @@ import com.google.common.collect.Maps;
 public class BnsVocabularyLoader implements VocabularyLoader {
     private static final Logger LOG = LoggerFactory.getLogger(BnsVocabularyLoader.class);
 
-    private static final Map<String, Double> bnsMap = Maps.newHashMap();
-    private static final List<String> tokenIndexList = Lists.newArrayList();
+    private static final Map<String, Double> BNS_MAP = Maps.newHashMap();
+    private static final List<String> TOKEN_INDEX = Lists.newArrayList();
 
     /**
      * Reads from HDFS a list of tokens with their associated BNS term weights. Returns the list of tokens. We also keep a dictionary with
@@ -38,9 +38,9 @@ public class BnsVocabularyLoader implements VocabularyLoader {
         HdfsCorpusLoader<Pair<String, Double>> corpusLoader = BnsCorpusFactory.createHdfsVocabLoader(conf, pathName);
         for (Pair<String, Double> nextPair : corpusLoader) {
             LOG.debug("Next Pair: " + nextPair);
-            bnsMap.put(nextPair.first, nextPair.second);
-            tokenIndexList.add(nextPair.first);
+            BNS_MAP.put(nextPair.first, nextPair.second);
+            TOKEN_INDEX.add(nextPair.first);
         }
-        return tokenIndexList;
+        return TOKEN_INDEX;
     }
 }

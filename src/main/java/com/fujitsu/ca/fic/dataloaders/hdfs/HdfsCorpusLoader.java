@@ -18,10 +18,11 @@ import com.fujitsu.ca.fic.dataloaders.LineParser;
 import com.google.common.collect.Lists;
 
 public class HdfsCorpusLoader<E> implements Iterable<E> {
-    private static Logger LOG = LoggerFactory.getLogger(HdfsCorpusLoader.class);
+    private static Logger log = LoggerFactory.getLogger(HdfsCorpusLoader.class);
     private final HadoopCorpusIterator corpusItr;
 
-    public HdfsCorpusLoader(Configuration conf, String inputDirName, LineParser<E> lineParser) throws IOException {
+    public HdfsCorpusLoader(Configuration conf, String inputDirName,
+            LineParser<E> lineParser) throws IOException {
         corpusItr = new HadoopCorpusIterator(conf, inputDirName, lineParser);
     }
 
@@ -38,19 +39,22 @@ public class HdfsCorpusLoader<E> implements Iterable<E> {
         private BufferedReader reader = null;
         private String nextLine = null;
 
-        public HadoopCorpusIterator(Configuration conf, String inputDirName, LineParser<E> lineParser) throws IOException {
+        public HadoopCorpusIterator(Configuration conf, String inputDirName,
+                LineParser<E> lineParser) throws IOException {
             this.lineParser = lineParser;
             fs = FileSystem.get(conf);
             filesToProcess = getListOfMapReduceOutputFiles(fs, inputDirName);
         }
 
-        private List<Path> getListOfMapReduceOutputFiles(FileSystem fs, String inputDirName) throws IOException {
-            FileStatus[] fileStatus = fs.listStatus(new Path(inputDirName), new PathFilter() {
-                @Override
-                public boolean accept(Path path) {
-                    return path.getName().matches("part(.*)");
-                }
-            });
+        private List<Path> getListOfMapReduceOutputFiles(FileSystem fs,
+                String inputDirName) throws IOException {
+            FileStatus[] fileStatus = fs.listStatus(new Path(inputDirName),
+                    new PathFilter() {
+                        @Override
+                        public boolean accept(Path path) {
+                            return path.getName().matches("part(.*)");
+                        }
+                    });
             List<Path> paths = Lists.newArrayList();
             for (FileStatus file : fileStatus) {
                 paths.add(file.getPath());
@@ -61,14 +65,15 @@ public class HdfsCorpusLoader<E> implements Iterable<E> {
         @Override
         public boolean hasNext() {
             try {
-                if (reader == null && currentFileStatusIndex == filesToProcess.size()) {
+                if (reader == null
+                        && currentFileStatusIndex == filesToProcess.size()) {
                     return false;
                 } else if (reader == null) {
                     setReaderToNextFile();
                 }
                 nextLine = reader.readLine();
                 if (isEndOfFile(nextLine) & directoryHasMoreFiles()) {
-                    LOG.debug("File finished, changing to next file.");
+                    log.debug("File finished, changing to next file.");
                     setReaderToNextFile();
                     return hasNext();
 
@@ -78,12 +83,12 @@ public class HdfsCorpusLoader<E> implements Iterable<E> {
                 reader.close();
                 reader = null;
             } catch (IOException e) {
-                LOG.error(e.toString());
+                log.error(e.toString());
                 if (reader != null) {
                     try {
                         reader.close();
                     } catch (IOException e2) {
-                        LOG.error(e.toString());
+                        log.error(e.toString());
                     }
                 }
             }
@@ -100,14 +105,15 @@ public class HdfsCorpusLoader<E> implements Iterable<E> {
 
         private void setReaderToNextFile() throws IOException {
             if (currentFileStatusIndex == filesToProcess.size()) {
-                LOG.warn("setReaderToNextFile: No more files to process!");
+                log.warn("setReaderToNextFile: No more files to process!");
                 reader = null;
                 return;
             }
             Path nextFilePath = filesToProcess.get(currentFileStatusIndex++);
-            reader = new BufferedReader(new InputStreamReader(fs.open(nextFilePath)));
+            reader = new BufferedReader(new InputStreamReader(
+                    fs.open(nextFilePath)));
 
-            LOG.info("Processing next file: " + nextFilePath.toString());
+            log.info("Processing next file: " + nextFilePath.toString());
         }
 
         @Override
