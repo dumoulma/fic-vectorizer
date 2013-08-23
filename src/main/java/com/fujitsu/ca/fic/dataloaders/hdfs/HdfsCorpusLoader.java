@@ -46,9 +46,9 @@ public class HdfsCorpusLoader<E> implements Iterable<E> {
             filesToProcess = getListOfMapReduceOutputFiles(fs, inputDirName);
         }
 
-        private List<Path> getListOfMapReduceOutputFiles(FileSystem fs,
+        private List<Path> getListOfMapReduceOutputFiles(FileSystem fs1,
                 String inputDirName) throws IOException {
-            FileStatus[] fileStatus = fs.listStatus(new Path(inputDirName),
+            FileStatus[] fileStatus = fs1.listStatus(new Path(inputDirName),
                     new PathFilter() {
                         @Override
                         public boolean accept(Path path) {
@@ -72,12 +72,13 @@ public class HdfsCorpusLoader<E> implements Iterable<E> {
                     setReaderToNextFile();
                 }
                 nextLine = reader.readLine();
-                if (isEndOfFile(nextLine) & directoryHasMoreFiles()) {
+                boolean isEOF = isEndOfFile(nextLine);
+                if (isEOF && directoryHasMoreFiles()) {
                     log.debug("File finished, changing to next file.");
                     setReaderToNextFile();
                     return hasNext();
 
-                } else if (!isEndOfFile(nextLine)) {
+                } else if (!isEOF) {
                     return true;
                 }
                 reader.close();
@@ -99,8 +100,8 @@ public class HdfsCorpusLoader<E> implements Iterable<E> {
             return currentFileStatusIndex < filesToProcess.size();
         }
 
-        private boolean isEndOfFile(String nextLine) {
-            return (nextLine == null || nextLine.isEmpty());
+        private boolean isEndOfFile(String nextLine1) {
+            return (nextLine1 == null || nextLine1.isEmpty());
         }
 
         private void setReaderToNextFile() throws IOException {
