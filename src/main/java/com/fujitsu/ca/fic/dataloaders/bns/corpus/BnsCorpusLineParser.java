@@ -19,6 +19,7 @@ public class BnsCorpusLineParser implements LineParser<Vector> {
     }
 
     /**
+     * Parse the fields of one document. Must follow the expected format.
      * 
      * Expected format:
      * (DOC_NAME:String,LABEL:int),(CARDINALITY:int,{(TOKEN_INDEX

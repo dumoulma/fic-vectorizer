@@ -16,11 +16,18 @@ import com.fujitsu.ca.fic.dataloaders.bns.corpus.BnsCorpusVectorizer;
 import com.fujitsu.ca.fic.dataloaders.bns.vocab.BnsVocabularyLoader;
 
 /**
- * The CorpusVectorizationDriver is the main program to launch the MR jobs that will take a corpus of unstructured text split into two
- * classes, each in its own folder, and using an existing dictionary of BNS term
+ * This is the driver that launches the MapReduce jobs.
+ * <p>
+ * The driver will take as input a corpus of unstructured text split into two
+ * classes, each in its own folder. The input documents are the output from
+ * bns.pig.
+ * </p>
+ * The output will be a test and train Hadoop SequenceFile:
+ * <DocumentName:Text,NamedVector:VectorWritable>
  */
 public class BnsCorpusVectorizationDriver extends Configured implements Tool {
-    private static Logger log = LoggerFactory.getLogger(BnsCorpusVectorizationDriver.class);
+    private static Logger log = LoggerFactory
+            .getLogger(BnsCorpusVectorizationDriver.class);
 
     public static void main(String[] args) throws Exception {
         int exitCode = ToolRunner.run(new BnsCorpusVectorizationDriver(), args);
@@ -36,22 +43,31 @@ public class BnsCorpusVectorizationDriver extends Configured implements Tool {
         String testDir = "data/out/bns-corpus/spam-vs-rel/test"; // conf.get("data.corpus.test.path");
         String outputFilename = "data/out/bns-corpus/spam-vs-rel/"; // conf.get("data.sequence.output.path");
 
-        if (vocabDir == null | trainDir == null | testDir == null | outputFilename == null) {
-            log.error("The configuration file was not loaded correctly! Please check: \n" + "data.vocab.path \n"
-                    + "data.corpus.train.path \n" + "data.corpus.test.path \n" + "data.sequence.output.path \n");
-            throw new IllegalStateException("The expected configuration values for data paths have not been found.");
+        if (vocabDir == null | trainDir == null | testDir == null
+                | outputFilename == null) {
+            log.error("The configuration file was not loaded correctly! Please check: \n"
+                    + "data.vocab.path \n"
+                    + "data.corpus.train.path \n"
+                    + "data.corpus.test.path \n"
+                    + "data.sequence.output.path \n");
+            throw new IllegalStateException(
+                    "The expected configuration values for data paths have not been found.");
         }
 
         log.info("Loading vocabulary from path: " + vocabDir);
-        List<String> tokenIndexList = new BnsVocabularyLoader().loadFromText(conf, vocabDir);
+        List<String> tokenIndexList = new BnsVocabularyLoader().loadFromText(
+                conf, vocabDir);
         int vocabCardinality = tokenIndexList.size();
-        log.info("The vocab file has been loaded successfully with " + vocabCardinality + " entries.");
+        log.info("The vocab file has been loaded successfully with "
+                + vocabCardinality + " entries.");
 
         CorpusVectorizer corpus = new BnsCorpusVectorizer();
         log.info("Vectorizing train documents...");
-        corpus.convertToSequenceFile(conf, trainDir, outputFilename + "/train.seq");
+        corpus.convertToSequenceFile(conf, trainDir, outputFilename
+                + "/train.seq");
         log.info("Vectorizing test documents...");
-        corpus.convertToSequenceFile(conf, testDir, outputFilename + "/test.seq");
+        corpus.convertToSequenceFile(conf, testDir, outputFilename
+                + "/test.seq");
         log.info("BNS Vectorization successful!");
         return Job.SUCCESS;
     }
