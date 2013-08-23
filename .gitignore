@@ -1,4 +1,5 @@
 /target
+/log
 *.log
 *.crc
 dependency-reduced-pom.xml
