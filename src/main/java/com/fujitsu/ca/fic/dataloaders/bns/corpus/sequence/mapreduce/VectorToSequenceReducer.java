@@ -1,4 +1,4 @@
-package com.fujitsu.ca.fic.sievevectorizer.job;
+package com.fujitsu.ca.fic.dataloaders.bns.corpus.sequence.mapreduce;
 
 import java.io.IOException;
 

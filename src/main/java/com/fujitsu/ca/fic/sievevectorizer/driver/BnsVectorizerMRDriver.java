@@ -18,8 +18,8 @@ import org.apache.mahout.math.VectorWritable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fujitsu.ca.fic.sievevectorizer.job.BnsPigOutputToVectorMapper;
-import com.fujitsu.ca.fic.sievevectorizer.job.VectorToSequenceReducer;
+import com.fujitsu.ca.fic.dataloaders.bns.corpus.sequence.mapreduce.BnsPigOutputToVectorMapper;
+import com.fujitsu.ca.fic.dataloaders.bns.corpus.sequence.mapreduce.VectorToSequenceReducer;
 
 public class BnsVectorizerMRDriver extends Configured implements Tool {
     private static Logger log = LoggerFactory

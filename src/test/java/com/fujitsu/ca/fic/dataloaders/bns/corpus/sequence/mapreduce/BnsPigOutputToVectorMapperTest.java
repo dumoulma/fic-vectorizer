@@ -1,4 +1,7 @@
-package com.fujitsu.ca.fic.sievevectorizer.job;
+package com.fujitsu.ca.fic.dataloaders.bns.corpus.sequence.mapreduce;
+
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 
@@ -18,10 +21,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.fujitsu.ca.fic.dataloaders.LineParser;
-
-import static org.mockito.Matchers.anyString;
-
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BnsPigOutputToVectorMapperTest {

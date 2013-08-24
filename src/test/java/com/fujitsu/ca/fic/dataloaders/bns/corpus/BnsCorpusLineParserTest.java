@@ -2,7 +2,6 @@ package com.fujitsu.ca.fic.dataloaders.bns.corpus;
 
 import org.apache.mahout.math.Vector;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fujitsu.ca.fic.exceptions.IncorrectLineFormatException;
@@ -26,7 +25,7 @@ public class BnsCorpusLineParserTest {
     public void setUp() {
     }
 
-    @Ignore
+    @Test
     public void parseCorrectlyFormatterLineDoesntThrowException() {
         bnsLineParser.parseFields(correctLine1);
     }
@@ -40,7 +39,7 @@ public class BnsCorpusLineParserTest {
         assertThat(vector.get(3), equalTo(1.98149));
     }
 
-    @Ignore
+    @Test
     public void parseACorrectLineReturnsVectorWithCorrectSizeAndValues()
             throws IncorrectLineFormatException {
         Vector vector = bnsLineParser.parseFields(correctLine1);
