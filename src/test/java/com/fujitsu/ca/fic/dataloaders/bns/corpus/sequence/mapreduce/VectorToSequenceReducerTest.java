@@ -29,64 +29,62 @@ import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VectorToSequenceReducerTest {
-	private static final int CARDINALITY = 4995;
-	private static final String DOCUMENT_LABEL = "data/sieve/corpus6/spam/39135.txt.gz,1";
-	private static final LongWritable ONE = new LongWritable(1);
+    private static final int CARDINALITY = 4995;
+    private static final String DOCUMENT_LABEL = "data/sieve/corpus6/spam/39135.txt.gz,1";
+    private static final LongWritable ONE = new LongWritable(1);
 
-	@Mock
-	private Reducer<LongWritable, VectorWritable, Text, VectorWritable>.Context context;
-	@Mock
-	private Configuration conf;
+    @Mock
+    private Reducer<LongWritable, VectorWritable, Text, VectorWritable>.Context context;
+    @Mock
+    private Configuration conf;
 
-	private ReduceDriver<LongWritable, VectorWritable, Text, VectorWritable> reduceDriver;
-	private static List<VectorWritable> vectorWritables = Lists.newArrayList();
+    private ReduceDriver<LongWritable, VectorWritable, Text, VectorWritable> reduceDriver;
+    private static List<VectorWritable> vectorWritables = Lists.newArrayList();
 
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-		vectorWritables.add(new VectorWritable(createExpectedNamedVector()));
-	}
+    @BeforeClass
+    public static void setUpBeforeClass() {
+	vectorWritables.add(new VectorWritable(createExpectedNamedVector()));
+    }
 
-	@Before
-	public void setUp() throws Exception {
-		when(context.getConfiguration()).thenReturn(conf);
-		VectorToSequenceReducer reducer = new VectorToSequenceReducer();
+    @Before
+    public void setUp() {
+	when(context.getConfiguration()).thenReturn(conf);
+	VectorToSequenceReducer reducer = new VectorToSequenceReducer();
 
-		reduceDriver = ReduceDriver.newReduceDriver(reducer);
+	reduceDriver = ReduceDriver.newReduceDriver(reducer);
 
-	}
+    }
 
-	private static NamedVector createExpectedNamedVector() {
-		double[] values = new double[CARDINALITY];
-		values[3488] = 1.30227;
-		values[4417] = 2.51266;
-		values[4418] = 2.60221;
-		Vector delegate = new SequentialAccessSparseVector(CARDINALITY);
-		delegate.assign(values);
-		return new NamedVector(delegate, DOCUMENT_LABEL);
-	}
+    private static NamedVector createExpectedNamedVector() {
+	double[] values = new double[CARDINALITY];
+	values[3488] = 1.30227;
+	values[4417] = 2.51266;
+	values[4418] = 2.60221;
+	Vector delegate = new SequentialAccessSparseVector(CARDINALITY);
+	delegate.assign(values);
+	return new NamedVector(delegate, DOCUMENT_LABEL);
+    }
 
-	@Test
-	public void givenOneVectorshouldCallContextWriteOnce() throws IOException,
-			InterruptedException {
-		VectorToSequenceReducer reducer = new VectorToSequenceReducer();
-		reducer.reduce(ONE, vectorWritables, context);
+    @Test
+    public void givenOneVectorshouldCallContextWriteOnce() throws IOException, InterruptedException {
+	VectorToSequenceReducer reducer = new VectorToSequenceReducer();
+	reducer.reduce(ONE, vectorWritables, context);
 
-		verify(context).write(any(Text.class), any(VectorWritable.class));
-	}
+	verify(context).write(any(Text.class), any(VectorWritable.class));
+    }
 
-	@Test
-	public void shouldOutputTheExpectedConfidenceScoreForEachInputVector()
-			throws IOException {
-		reduceDriver.withInputKey(ONE);
-		reduceDriver.withInputValues(vectorWritables);
+    @Test
+    public void shouldOutputTheExpectedConfidenceScoreForEachInputVector() throws IOException {
+	reduceDriver.withInputKey(ONE);
+	reduceDriver.withInputValues(vectorWritables);
 
-		List<Pair<Text, VectorWritable>> outputs = reduceDriver.run();
-		assertThat(outputs.size(), is(1));
-		Pair<Text, VectorWritable> output = outputs.get(0);
-		String docName = output.getFirst().toString();
-		NamedVector nv = (NamedVector) output.getSecond().get();
-		assertThat("data/sieve/corpus6/spam/39135.txt.gz", is(docName));
-		assertThat(nv.getName(), is("1"));
-	}
+	List<Pair<Text, VectorWritable>> outputs = reduceDriver.run();
+	assertThat(outputs.size(), is(1));
+	Pair<Text, VectorWritable> output = outputs.get(0);
+	String docName = output.getFirst().toString();
+	NamedVector nv = (NamedVector) output.getSecond().get();
+	assertThat("data/sieve/corpus6/spam/39135.txt.gz", is(docName));
+	assertThat(nv.getName(), is("1"));
+    }
 
 }

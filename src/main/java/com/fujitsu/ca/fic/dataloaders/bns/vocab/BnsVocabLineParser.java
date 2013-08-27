@@ -26,11 +26,7 @@ public class BnsVocabLineParser implements LineParser<Pair<String, Double>> {
             String[] fields = line.split(";");
             token = fields[1];
             bnsScore = Double.parseDouble(fields[0]);
-            // Double bnsScore = Double.parseDouble(line.substring(0,
-            // line.indexOf(',')));
-            // int tokenFieldStart = line.indexOf(',') + 1;
-            // int tokenFieldEnd = line.lastIndexOf(',');
-            // String token = line.substring(tokenFieldStart, tokenFieldEnd);
+            
             log.debug(String.format("Pair: <%s, %f>", token, bnsScore));
 
         } catch (NumberFormatException nfe) {
@@ -44,10 +40,7 @@ public class BnsVocabLineParser implements LineParser<Pair<String, Double>> {
             log.warn(message);
 
         }
-        // catch (RuntimeException rte) {
-        // String message = "parseFields: Unknown error parsing line: " + line;
-        // log.warn(message);
-        // }
+
         return new Pair<String, Double>(token, bnsScore);
     }
 }

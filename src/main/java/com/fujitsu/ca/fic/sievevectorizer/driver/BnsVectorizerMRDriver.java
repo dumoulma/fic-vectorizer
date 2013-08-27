@@ -10,6 +10,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -84,7 +85,7 @@ public class BnsVectorizerMRDriver extends Configured implements Tool {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(VectorWritable.class);
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
-        SequenceFileOutputFormat.setOutputPath(job, output);
+        FileOutputFormat.setOutputPath(job, output);
 
         return job.waitForCompletion(true);
     }

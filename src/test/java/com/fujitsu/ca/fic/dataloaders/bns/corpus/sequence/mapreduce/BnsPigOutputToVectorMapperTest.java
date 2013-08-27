@@ -14,7 +14,6 @@ import org.apache.mahout.math.SequentialAccessSparseVector;
 import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -53,19 +52,15 @@ public class BnsPigOutputToVectorMapperTest {
         return new NamedVector(delegate, DOC_LABEL);
     }
 
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
-    }
-
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         BnsPigOutputToVectorMapper mapper = new BnsPigOutputToVectorMapper(
                 bnsCorpusLineParser);
         mapDriver = MapDriver.newMapDriver(mapper);
     }
 
     @Test
-    public void testMap() throws IOException, InterruptedException {
+    public void testMap() {
         NamedVector expected = createExpectedNamedVector();
         when(bnsCorpusLineParser.parseFields(anyString())).thenReturn(expected);
 

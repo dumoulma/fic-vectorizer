@@ -1,10 +1,7 @@
 package com.fujitsu.ca.fic.dataloaders.bns.corpus;
 
 import org.apache.mahout.math.Vector;
-import org.junit.Before;
 import org.junit.Test;
-
-import com.fujitsu.ca.fic.exceptions.IncorrectLineFormatException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -21,18 +18,13 @@ public class BnsCorpusLineParserTest {
     // "green", "red", "yellow", "orange");
     private final BnsCorpusLineParser bnsLineParser = new BnsCorpusLineParser();
 
-    @Before
-    public void setUp() {
-    }
-
     @Test
     public void parseCorrectlyFormatterLineDoesntThrowException() {
         bnsLineParser.parseFields(correctLine1);
     }
 
     @Test
-    public void parseALineWithAnUnknownTokenShouldIgnoreField()
-            throws IncorrectLineFormatException {
+    public void parseALineWithAnUnknownTokenShouldIgnoreField() {
         Vector vector = bnsLineParser.parseFields(correctLineWithUnkToken);
         assertThat(vector.size(), equalTo(CARDINALITY));
         assertThat(vector.get(1), equalTo(0.22829));
@@ -40,8 +32,7 @@ public class BnsCorpusLineParserTest {
     }
 
     @Test
-    public void parseACorrectLineReturnsVectorWithCorrectSizeAndValues()
-            throws IncorrectLineFormatException {
+    public void parseACorrectLineReturnsVectorWithCorrectSizeAndValues() {
         Vector vector = bnsLineParser.parseFields(correctLine1);
         assertThat(vector.size(), equalTo(CARDINALITY));
         assertThat(vector.get(0), equalTo(0.28095));
