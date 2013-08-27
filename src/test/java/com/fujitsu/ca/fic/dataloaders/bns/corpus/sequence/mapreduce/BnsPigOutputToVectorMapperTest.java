@@ -73,4 +73,10 @@ public class BnsPigOutputToVectorMapperTest {
         mapDriver.withOutput(ONE, new VectorWritable(expected));
         mapDriver.runTest();
     }
+    
+    @Test
+    public void testMapperWithValidDataWillNotThrowException() throws IOException, InterruptedException {
+    	BnsPigOutputToVectorMapper theMapper = new BnsPigOutputToVectorMapper();
+    	theMapper.map(ONE, new Text(SAMPLE_LINE), context);    	
+    }
 }

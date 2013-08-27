@@ -31,7 +31,7 @@ public class HdfsCorpusLoader<E> implements Iterable<E> {
         return corpusItr;
     }
 
-    public class HadoopCorpusIterator implements Iterator<E> {
+    private class HadoopCorpusIterator implements Iterator<E> {
         private final LineParser<E> lineParser;
         private final FileSystem fs;
         private final List<Path> filesToProcess;
